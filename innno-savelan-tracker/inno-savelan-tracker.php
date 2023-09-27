@@ -23,14 +23,28 @@ function track_visitor() {
         'timestamp' => current_time('timestamp'),
         'url' => $_SERVER['REQUEST_URI'],
         'referrer' => $_SERVER['HTTP_REFERER'],
-        // Add more data as needed
+        // Lisää tarvittaessa lisää tietoja
     );
 
-    // Store the data in a database or write to a log file
-    // You can use WordPress functions like wp_insert_post() or custom database tables.
+    // Lähetä tiedot backend-palvelimelle HTTP POST -pyynnöllä
+    $backend_url = 'http://localhost:3000/api/v1'; // Vaihda oikeaan URL-osoitteeseen
+    $response = wp_safe_remote_post($backend_url, array(
+        'body' => json_encode($visitor_data),
+        'headers' => array('Content-Type' => 'application/json'),
+    ));
 
-    BugFu::log($visitor_data);
+    if (is_wp_error($response)) {
+        // Virheenkäsittely, jos pyyntö epäonnistui
+        error_log('Tietojen lähettäminen epäonnistui: ' . $response->get_error_message());
+    } else {
+        // Tietojen lähettäminen onnistui
+        BugFu::log($visitor_data);
+    }
 }
+
+add_action('wp_footer', 'track_visitor');
+add_action('admin_menu', 'ist_setup_menu');
+
 
 add_action('wp_footer', 'track_visitor');
 add_action('admin_menu', 'ist_setup_menu');
