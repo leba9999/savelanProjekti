@@ -5,7 +5,8 @@ import MessageResponse from '../interfaces/MessageResponse';
 
 const router = express.Router();
 
-router.get<{}, MessageResponse>('/', (req, res) => {
+router.post<{}, MessageResponse>('/', (req, res) => {
+  console.log(req.body)
   res.json({
     message: 'routes: upload',
   });
