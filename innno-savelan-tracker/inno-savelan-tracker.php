@@ -6,15 +6,15 @@ Author: Hanna Kaimo, Leevi Koskinen, Janne Lähteenmäki, Elsa Rajala, Heini Rin
 Version: 1.0
 */
 
-function ist_setup_menu(){
-    add_menu_page( 'Inno Save LAN Tracker', 'ClientTracker', 'manage_options', 'inno-savelan-tracker', 'ist_admin_page' );
+/* 
+Securing direct access to plugin PHP files.
+If file is not accessed through wordpress absolute path, we will kill the plugin.
+*/
+if( !defined('ABSPATH')){
+    die("Error: 404 Not Found");
 }
 
-function ist_admin_page(){
-    echo "<h1>ClientTracker</h1>";
-    echo "<p>ClientTracker is a plugin for tracking visiting users/clients in Save LAN wordpress website.</p>";
-    echo "<p>In this page you can edit plugin settings.</p>";
-}
+include_once('includes/admin-settings-page.php');
 
 function track_visitor() {
     $visitor_data = array(
@@ -25,28 +25,35 @@ function track_visitor() {
         'referrer' => $_SERVER['HTTP_REFERER'],
         // Lisää tarvittaessa lisää tietoja
     );
+    $backend_url = get_option('tracker_plugin_ip_domain'); // Get the backend url from the admin settings page
+    $data_format = get_option('tracker_plugin_data_format'); // Get the selected data format (JSON or XML)
 
-    // Lähetä tiedot backend-palvelimelle HTTP POST -pyynnöllä
-    $backend_url = 'http://localhost:3000/api/v1'; // Vaihda oikeaan URL-osoitteeseen
+    // Check the selected data format and construct the request accordingly
+    if ($data_format === 'xml') {
+        // Construct XML data
+        $xml = new SimpleXMLElement('<visitor_data/>');
+        array_walk_recursive($visitor_data, array ($xml, 'addChild'));
+        $request_body = $xml->asXML();
+        $content_type = 'application/xml';
+    } else {
+        $request_body = json_encode($visitor_data);
+        $content_type = 'application/json';
+    }
     $response = wp_safe_remote_post($backend_url, array(
-        'body' => json_encode($visitor_data),
-        'headers' => array('Content-Type' => 'application/json'),
+        'body' => $request_body,
+        'headers' => array('Content-Type' => $content_type),
     ));
 
     if (is_wp_error($response)) {
-        // Virheenkäsittely, jos pyyntö epäonnistui
-        error_log('Tietojen lähettäminen epäonnistui: ' . $response->get_error_message());
+        // Error handling if the request fails
+        error_log('Failed to send data: ' . $response->get_error_message());
+        BugFu::log($response);
     } else {
-        // Tietojen lähettäminen onnistui
+        // Data sent successfully
         BugFu::log($visitor_data);
     }
 }
 
-add_action('wp_footer', 'track_visitor');
-add_action('admin_menu', 'ist_setup_menu');
-
-
-add_action('wp_footer', 'track_visitor');
-add_action('admin_menu', 'ist_setup_menu');
-
+add_action('wp_footer', 'track_visitor'); // Adds the tracking function to the footer of the website
+add_action('admin_menu', 'setup_menu'); // Adds the admin settings page to the admin menu
 ?>
