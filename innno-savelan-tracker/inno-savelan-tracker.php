@@ -1,14 +1,14 @@
 <?php 
 /*
 Plugin Name: Inno Save LAN Tracker
-description: Plugin for tracking visiting users/clients in Save LAN wordpress website
+description: Plugin for tracking visiting clients in Save LAN wordpress website
 Author: Hanna Kaimo, Leevi Koskinen, Janne Lähteenmäki, Elsa Rajala, Heini Rinne, Olli Ruuskanen
-Version: 1.0
+Version: 1.0.0
 */
 
 /* 
 Securing direct access to plugin PHP files.
-If file is not accessed through wordpress absolute path, we will kill the plugin.
+If file is not accessed through wordpress absolute path, we will kill the php.
 */
 if( !defined('ABSPATH')){
     die("Error: 404 Not Found");
@@ -28,6 +28,7 @@ function track_visitor() {
     $backend_url = get_option('tracker_plugin_ip_domain'); // Get the backend url from the admin settings page
     $data_format = get_option('tracker_plugin_data_format'); // Get the selected data format (JSON or XML)
 
+    BugFu::log($backend_url);
     // Check the selected data format and construct the request accordingly
     if ($data_format === 'xml') {
         // Construct XML data
@@ -39,7 +40,9 @@ function track_visitor() {
         $request_body = json_encode($visitor_data);
         $content_type = 'application/json';
     }
-    $response = wp_safe_remote_post($backend_url, array(
+    $test = wp_remote_get($backend_url);
+    BugFu::log($test);
+    $response = wp_remote_post($backend_url, array(
         'body' => $request_body,
         'headers' => array('Content-Type' => $content_type),
     ));

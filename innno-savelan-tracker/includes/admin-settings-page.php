@@ -15,8 +15,9 @@ function setup_menu(){
 function initialize_admin_page() {
     ?>
     <div class="wrap">
-        <h2>Save LAN Tracker Settings</h2>
+        <h2>Save LAN Tracker</h2>
         <p>Save LAN Tracker is a plugin for tracking visiting clients in Save LAN wordpress website.</p>
+        <h3>Settings</h3>
         <p>In this page you can edit plugin settings.</p>
         <form method="post" action="options.php">
             <?php
@@ -24,9 +25,9 @@ function initialize_admin_page() {
             ?>
             <table class="form-table">
                 <tr valign="top">
-                    <th scope="row">Backend IP Address or Domain:</th>
+                    <th scope="row">Backend Address:</th>
                     <td>
-                        <input type="text" name="tracker_plugin_ip_domain" value="<?php echo esc_attr(get_option('tracker_plugin_ip_domain', "localhost:3000")); ?>" />
+                        <input type="text" name="tracker_plugin_ip_domain" value="<?php echo esc_attr(get_option('tracker_plugin_ip_domain', "http://localhost:3000/api/v1")); ?>" />
                     </td>
                 </tr>
                 <tr valign="top">
