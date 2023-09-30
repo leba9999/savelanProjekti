@@ -24,16 +24,16 @@ function initialize_admin_page() {
             ?>
             <table class="form-table">
                 <tr valign="top">
-                    <th scope="row">IP Address or Domain:</th>
+                    <th scope="row">Backend IP Address or Domain:</th>
                     <td>
-                        <input type="text" name="tracker_plugin_ip_domain" value="<?php echo esc_attr(get_option('tracker_plugin_ip_domain')); ?>" />
+                        <input type="text" name="tracker_plugin_ip_domain" value="<?php echo esc_attr(get_option('tracker_plugin_ip_domain', "localhost:3000")); ?>" />
                     </td>
                 </tr>
                 <tr valign="top">
                     <th scope="row">Data Format:</th>
                     <td>
                         <label>
-                            <input type="radio" name="tracker_plugin_data_format" value="json" <?php checked('json', get_option('tracker_plugin_data_format'), true); ?> /> JSON
+                            <input type="radio" name="tracker_plugin_data_format" value="json" <?php checked('json', get_option('tracker_plugin_data_format', 'json'), true); ?> /> JSON
                         </label>
                         <br /> 
                         <?php /* 
