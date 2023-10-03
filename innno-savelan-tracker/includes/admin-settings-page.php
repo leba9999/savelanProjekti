@@ -13,6 +13,10 @@ function setup_menu(){
 
 // Create the options page
 function initialize_admin_page() {
+    if (isset($_POST['send_test_data'])) {
+        // Handle the button click action here
+        send_test_data();
+    }
     ?>
     <div class="wrap">
         <h2>Save LAN Tracker</h2>
@@ -25,7 +29,7 @@ function initialize_admin_page() {
             ?>
             <table class="form-table">
                 <tr valign="top">
-                    <th scope="row">Backend Address:</th>
+                    <th scope="row">Backend url:</th>
                     <td>
                         <input type="text" name="tracker_plugin_ip_domain" value="<?php echo esc_attr(get_option('tracker_plugin_ip_domain', "http://localhost:3000/api/v1")); ?>" />
                     </td>
@@ -45,11 +49,48 @@ function initialize_admin_page() {
                     </td>
                 </tr>
             </table>
-            <?php submit_button(); ?>
+            <input type="submit" name="save_settings" class="button-primary" value="Save Settings">
+        </form>
+        <h3>Test backend connection</h3>
+        <p>Send test data to the backend. Remember to save before testing!</p>
+        <form method="post">
+            <input type="submit" name="send_test_data" class="button-secondary"value="Test">
         </form>
     </div>
     <?php
 }
+
+function send_test_data() {
+    $backend_url = get_option('tracker_plugin_ip_domain');
+    $data_format = get_option('tracker_plugin_data_format');
+
+    $test_data = array(
+        'ip' => '192.168.1.100',
+        'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:60.0) Gecko/20100101 Firefox/60.0',
+        'timestamp' => 1696363195,
+        'url' => 'http://localhost:3000/',
+        'referrer' => 'http://localhost:3000/api/v1',
+    );
+
+    $response = wp_remote_post($backend_url, array(
+        'body' => json_encode($test_data),
+        'headers' => array('Content-Type' => 'application/json'),
+    ));
+
+    if (is_wp_error($response)) {
+        echo '<div class="error"><p>Fail! Server did not respond: ' . $response->get_error_message() . '</p></div>';
+        error_log('Failed to send test data: ' . $response->get_error_message());
+    } 
+    else if ($response['response']['code'] != 200){
+        echo '<div class="error"><p>Fail! Server responded with error: ' . $response['body'] . '</p></div>';
+    } 
+    else {
+        // Test data sent successfully
+        // You can add a success message or perform additional actions here
+        echo '<div class="updated"><p>Test data sent successfully!</p></div>';
+    }
+}
+
 function tracker_plugin_initialize_settings() {
     // Register the settings section
     add_settings_section(
