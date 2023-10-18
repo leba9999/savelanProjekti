@@ -1,17 +1,12 @@
-import express from 'express';
+import express from "express";
 
 //import uploadRoute from './routes/uploadRoute';
-import MessageResponse from '../interfaces/MessageResponse';
+import MessageResponse from "../interfaces/MessageResponse";
+import { botFilter } from "../middlewares";
+import { uploadRoute } from "./routes/uploadRoute";
 
 const router = express.Router();
 
-router.post<{}, MessageResponse>('/', (req, res) => {
-  console.log(req.body)
-  res.json({
-    message: 'routes: upload',
-  });
-});
-
-//router.use('/upload', uploadRoute);
+router.route("/").post(botFilter, uploadRoute);
 
 export default router;
