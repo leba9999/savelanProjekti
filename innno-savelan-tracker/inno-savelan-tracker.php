@@ -25,8 +25,8 @@ function track_visitor() {
         'referrer' => $_SERVER['HTTP_REFERER'],
         // Lisää tarvittaessa lisää tietoja
     );
-    $backend_url = get_option('tracker_plugin_ip_domain'); // Get the backend url from the admin settings page
-    $data_format = get_option('tracker_plugin_data_format'); // Get the selected data format (JSON or XML)
+    $backend_url = get_option('tracker_plugin_ip_domain', "http://localhost:3000/api/v1"); // Get the backend url from the admin settings page
+    $data_format = get_option('tracker_plugin_data_format', "json"); // Get the selected data format (JSON or XML)
 
     BugFu::log($backend_url);
     // Check the selected data format and construct the request accordingly

@@ -34,6 +34,7 @@ function initialize_admin_page() {
                         <input type="text" name="tracker_plugin_ip_domain" value="<?php echo esc_attr(get_option('tracker_plugin_ip_domain', "http://localhost:3000/api/v1")); ?>" />
                     </td>
                 </tr>
+                        <?php /* 
                 <tr valign="top">
                     <th scope="row">Data Format:</th>
                     <td>
@@ -41,13 +42,12 @@ function initialize_admin_page() {
                             <input type="radio" name="tracker_plugin_data_format" value="json" <?php checked('json', get_option('tracker_plugin_data_format', 'json'), true); ?> /> JSON
                         </label>
                         <br /> 
-                        <?php /* 
                         <label>
                             <input type="radio" name="tracker_plugin_data_format" value="xml" <?php checked('xml', get_option('tracker_plugin_data_format')); ?> /> XML
-                        </label> */
-                        ?>
+                        </label> 
                     </td>
-                </tr>
+                </tr>*/
+                ?>
             </table>
             <input type="submit" name="save_settings" class="button-primary" value="Save Settings">
         </form>
