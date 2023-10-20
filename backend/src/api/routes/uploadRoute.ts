@@ -48,8 +48,16 @@ const uploadRoute = async (
     if (!existingCompany) {
       // IP is not in the Company table; create a new Company record
       existingCompany = new Company();
-      existingCompany.IP = "0.0.0.0"; // Default to 0.0.0.0 if the IP is not valid
+      existingCompany.IP = trackerData.ip || "0.0.0.0"; // Default to 0.0.0.0 if the IP is not valid
       existingCompany.NAME = "Unknown"; // Default to Unknown if the IP is not valid or the API call fails
+      if (
+        trackerData.ip.includes("::1") ||
+        trackerData.ip.includes("127.0.0.1")
+      ) {
+        // ::1 is the IPv6 equivalent of 127.0.0.1 which is the localhost IP address
+        existingCompany.NAME = "localhost";
+        existingCompany.IP = "127.0.0.1";
+      }
       if (
         ipv4Pattern.test(trackerData.ip) &&
         !trackerData.ip.includes("0.0.0.0")
