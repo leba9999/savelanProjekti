@@ -67,7 +67,6 @@ const botFilter = (
     // TODO : Logiikka miten halutaan toimia, luultavasti vain lähetetään data eteenpäin sillä botin tsekkaus tehty ?
     next();
   }
-  next();
 };
 
 export { notFound, errorHandler, botFilter };

@@ -4,6 +4,7 @@ import {
   Column,
   OneToOne,
   JoinColumn,
+  ManyToOne,
 } from "typeorm";
 import { Company } from "./company.entity";
 import { URL } from "./url.entity";
@@ -22,20 +23,20 @@ export class ClientData {
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   TimeStamp: Date;
 
-  @OneToOne(() => Company, {
+  @ManyToOne(() => Company, {
     cascade: true,
     nullable: false,
   })
   @JoinColumn()
   Company: Company;
 
-  @OneToOne(() => URL, {
+  @ManyToOne(() => URL, {
     cascade: true,
   })
   @JoinColumn()
   SourcePage: URL;
 
-  @OneToOne(() => URL, {
+  @ManyToOne(() => URL, {
     cascade: true,
   })
   @JoinColumn()

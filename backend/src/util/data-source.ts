@@ -1,7 +1,7 @@
 import { DataSource } from "typeorm";
-import { ClientData } from "../entities/clientData.entity";
 import { Company } from "../entities/company.entity";
 import { URL } from "../entities/url.entity";
+import { ClientData } from "../entities/clientData.entity";
 
 export const DBConnection = new DataSource({
   type: "mysql",
