@@ -20,7 +20,8 @@ const rateLimitedApi = AxiosRateLimit(api, {
   maxRequests: 40,
   perMilliseconds: 60000,
 });
-const ipv4Pattern = /^(\d{1,3}\.){3}\d{1,3}$/;
+const ipv4Pattern =
+  /(\b25[0-5]|\b2[0-4][0-9]|\b[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}/;
 const ipv6Pattern = /^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$/;
 const uploadRoute = async (
   req: Request,
@@ -49,7 +50,10 @@ const uploadRoute = async (
       existingCompany = new Company();
       existingCompany.IP = "0.0.0.0"; // Default to 0.0.0.0 if the IP is not valid
       existingCompany.NAME = "Unknown"; // Default to Unknown if the IP is not valid or the API call fails
-      if (ipv4Pattern.test(trackerData.ip)) {
+      if (
+        ipv4Pattern.test(trackerData.ip) &&
+        !trackerData.ip.includes("0.0.0.0")
+      ) {
         existingCompany.IP = trackerData.ip;
         let savedUnknownCompany = await companyRepository.save(existingCompany);
         rateLimitedApi
