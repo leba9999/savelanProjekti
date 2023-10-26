@@ -1,13 +1,9 @@
 import express from "express";
-
-//import uploadRoute from './routes/uploadRoute';
-import MessageResponse from "../interfaces/MessageResponse";
 import { botFilter } from "../middlewares";
-import { uploadRoute } from "./routes/uploadRoute";
+import { getDataRoute, uploadRoute } from "./routes/dataRoute";
 
 const router = express.Router();
 
-// Tietokanta yhteyksiä ei tänne tarvitse laittaa
-router.route("/").post(botFilter, uploadRoute);
+router.route("/data").post(botFilter, uploadRoute).get(botFilter, getDataRoute);
 
 export default router;

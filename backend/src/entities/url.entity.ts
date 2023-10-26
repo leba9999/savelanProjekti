@@ -6,7 +6,7 @@ export class URL {
   ID: number;
 
   @Column({
-    nullable: false,
+    nullable: true,
   })
   Adress: string;
 }

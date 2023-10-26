@@ -2,6 +2,8 @@
 import { NextFunction, Request, Response } from "express";
 import ErrorResponse from "./interfaces/ErrorResponse";
 import CustomError from "./classes/CustomError";
+import logger from "./util/loggers";
+import TrackerData from "./interfaces/TrackerData";
 
 // Define a list of regular expressions to match common bot user agents
 const botPatterns: RegExp[] = [
@@ -16,7 +18,6 @@ const botPatterns: RegExp[] = [
   /DecompilationBot/i,
   /AhrefsBot/i,
   /DongleEmulatorBot/i,
-  /PostmanRuntime/i,
   // Add more bot user agent patterns as needed
 ];
 
@@ -31,11 +32,11 @@ const errorHandler = (
   res: Response<ErrorResponse>,
   next: NextFunction
 ) => {
-  console.error("errorHandler", err);
+  logger.error(err.message);
+  logger.debug(err.stack);
   res.status(err.status || 500);
   res.json({
     message: err.message,
-    stack: process.env.NODE_ENV === "production" ? "🥞" : err.stack,
   });
 };
 
@@ -55,16 +56,18 @@ const botFilter = (
   next: NextFunction
 ) => {
   // Access visitor data from the request body
-  const visitorData = req.body;
+  const visitorData = req.body as TrackerData;
   const userAgent = visitorData.user_agent;
 
   if (isBot(userAgent)) {
     // TODO : Jos halutaan jotain logiikkaa kun botti on havaittu
     // Do not process data for bots
+    logger.info(
+      `Bot detected - ip:${visitorData.ip} current:${visitorData.url} user-agent:${userAgent}`
+    );
     res.status(403).json({ message: "Bot detected" });
   } else {
     // Process data for non-bots
-    // TODO : Logiikka miten halutaan toimia, luultavasti vain lähetetään data eteenpäin sillä botin tsekkaus tehty ?
     next();
   }
 };

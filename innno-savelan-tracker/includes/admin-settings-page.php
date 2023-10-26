@@ -62,7 +62,6 @@ function initialize_admin_page() {
 
 function send_test_data() {
     $backend_url = get_option('tracker_plugin_ip_domain');
-    $data_format = get_option('tracker_plugin_data_format');
 
     $test_data = array(
         'ip' => '192.168.1.100',
@@ -110,17 +109,17 @@ function tracker_plugin_initialize_settings() {
     );
 
     // Register the Data Format field (e.g., radio buttons)
-    add_settings_field(
+    /*add_settings_field(
         'tracker_plugin_data_format', // Unique ID for the field
         'Data Format', // Field title
         'tracker_plugin_data_format_callback', // Callback function to display the field
         'inno-savelan-tracker', // Page where the field should be displayed
         'inno-savelan-tracker-section' // Section to which the field belongs
-    );
+    );*/
 
     // Register your settings
     register_setting('inno-savelan-tracker', 'tracker_plugin_ip_domain');
-    register_setting('inno-savelan-tracker', 'tracker_plugin_data_format');
+    //register_setting('inno-savelan-tracker', 'tracker_plugin_data_format');
 }
 add_action('admin_init', 'tracker_plugin_initialize_settings');
 ?>
