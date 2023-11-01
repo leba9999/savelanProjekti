@@ -7,8 +7,7 @@ import TrackerData from "../interfaces/TrackerData";
 const ipv4Pattern =
   /(\b25[0-5]|\b2[0-4][0-9]|\b[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}/;
 const sqlChars = ["'", '"', ";", "--", "/*", "*/", "<", ">", "|"];
-const urlPattern =
-  /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/;
+const urlPattern = /^[a-zA-Z0-9-._~:/?#\[\]@!$&'()*+,;=%]+$/;
 
 const sanitizeBody = (
   req: Request,
@@ -22,7 +21,7 @@ const sanitizeBody = (
     }
     sanitizeIP(visitorData.ip);
     sanitizeUserAgent(visitorData.user_agent);
-    sanitizeTimestamp(visitorData.timestamp.getTime().toString());
+    sanitizeTimestamp(new Date(visitorData.timestamp).getTime().toString());
     sanitizeURL(visitorData.url);
     sanitizeURL(visitorData.referrer);
     next();
@@ -51,12 +50,7 @@ function sanitizeIP(ip: string): boolean {
 }
 
 function sanitizeUserAgent(userAgent: string): boolean {
-  for (const char of sqlChars) {
-    if (userAgent.includes(char)) {
-      logger.warn(`User agent ${userAgent} contains not allowed characters!`);
-      throw new Error("User agent contains suspicious characters.");
-    }
-  }
+  // TODO: Implement user agent sanitization
   return true;
 }
 
