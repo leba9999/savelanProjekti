@@ -61,21 +61,19 @@ const uploadRoute = async (
         .get(`/json/${visitorData.ip}`)
         .then(async (response: any) => {
           logger.info(`IP API response:${JSON.stringify(response.data)}`);
-          let existingCompany = (await companyRepository.findOne({
-            where: { NAME: response.data.org },
-          })) as Company;
-          if (!existingCompany) {
-            existingCompany = new Company();
-            existingCompany.IP = visitorData.ip;
-            existingCompany.NAME = response.data.org;
-            if (
-              visitorData.ip.includes("::1") ||
-              visitorData.ip.includes("127.0.0.1")
-            ) {
-              // ::1 is the IPv6 equivalent of 127.0.0.1 which is the localhost IP address
-              existingCompany.NAME = "localhost";
-              existingCompany.IP = "127.0.0.1";
-            }
+          let existingCompany =
+            ((await companyRepository.findOne({
+              where: { NAME: response.data.org },
+            })) as Company) || new Company();
+          existingCompany.IP = visitorData.ip;
+          existingCompany.NAME = response.data.org;
+          if (
+            visitorData.ip.includes("::1") ||
+            visitorData.ip.includes("127.0.0.1")
+          ) {
+            // ::1 is the IPv6 equivalent of 127.0.0.1 which is the localhost IP address
+            existingCompany.NAME = "localhost";
+            existingCompany.IP = "127.0.0.1";
           }
           let existingURL = await urlRepository.findOne({
             where: { Adress: visitorData.url },
