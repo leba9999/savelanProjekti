@@ -66,7 +66,7 @@ function send_test_data() {
     $test_data = array(
         'ip' => '192.168.1.100',
         'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:60.0) Gecko/20100101 Firefox/60.0',
-        'timestamp' => 1696363195,
+        'timestamp' => 1698919505999,
         'url' => 'http://localhost:3000/',
         'referrer' => 'http://localhost:3000/api/v1',
     );

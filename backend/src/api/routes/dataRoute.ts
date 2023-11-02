@@ -61,6 +61,10 @@ const uploadRoute = async (
         .get(`/json/${visitorData.ip}`)
         .then(async (response: any) => {
           logger.info(`IP API response:${JSON.stringify(response.data)}`);
+          if(response.data?.status === "fail"){
+            next(new CustomError(`IP API response:${JSON.stringify(response.data)}`, 400));
+            return;
+          }
           let existingCompany =
             ((await companyRepository.findOne({
               where: { NAME: response.data.org },
@@ -96,7 +100,7 @@ const uploadRoute = async (
           clientData.Company = existingCompany;
           clientData.CurrentPage = existingURL;
           clientData.SourcePage = existingReferrerURL;
-          clientData.TimeStamp = visitorData.timestamp;
+          clientData.TimeStamp = new Date(visitorData.timestamp);
           clientData.UserAgent = visitorData.user_agent;
 
           const savedData = await clientRepository.save(clientData);
