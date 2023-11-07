@@ -2,7 +2,7 @@ require("dotenv").config();
 import express from "express";
 import cors from "cors";
 
-import { notFound, errorHandler } from "./middlewares";
+import { notFound, errorHandler } from "./middlewares/middleware";
 import api from "./api";
 import MessageResponse from "./interfaces/MessageResponse";
 
