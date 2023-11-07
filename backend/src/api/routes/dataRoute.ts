@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import e, { Request, Response, NextFunction } from "express";
 import CustomError from "../../classes/CustomError";
 import { ClientData } from "../../entities/clientData.entity";
 import { URL } from "../../entities/url.entity";
@@ -8,6 +8,8 @@ import TrackerData from "../../interfaces/TrackerData";
 import axios from "axios";
 import AxiosRateLimit from "axios-rate-limit";
 import logger from "../../util/loggers";
+
+const ITEMS_PER_PAGE = 2;
 
 // Create an Axios instance with a base URL
 const api = axios.create({
@@ -86,14 +88,16 @@ const uploadRoute = async (
             where: { Adress: visitorData.referrer },
           });
 
+          if (!existingURL) {
+            existingURL = new URL();
+            existingURL.Adress = visitorData.url;
+          }
           if (!existingReferrerURL) {
             existingReferrerURL = new URL();
             existingReferrerURL.Adress = visitorData.referrer;
           }
-
-          if (!existingURL) {
-            existingURL = new URL();
-            existingURL.Adress = visitorData.url;
+          if(existingURL.Adress === existingReferrerURL.Adress){
+            existingReferrerURL = existingURL;
           }
           // Create the ClientData record
           const clientData = new ClientData();
@@ -124,7 +128,18 @@ const getDataRoute = async (
   next: NextFunction
 ) => {
   try {
+    const page = parseInt(req.query.page as string, 10) || 1 as number;
+
+    // Calculate the skip (offset) based on the page number
+    const skip = (page - 1) * ITEMS_PER_PAGE;
+
+    // Find users with pagination
+
     const clientRepository = DBConnection.getRepository(ClientData);
+    const totalCount = await clientRepository.count();
+    const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+    const currentPage = page;
+
     //const clientData = await clientRepository.find();
     logger.info(`Client fetching data`);
     const clientData = await clientRepository
@@ -132,8 +147,11 @@ const getDataRoute = async (
       .leftJoinAndSelect("ClientData.CurrentPage", "currentPage")
       .leftJoinAndSelect("ClientData.SourcePage", "sourcePage")
       .leftJoinAndSelect("ClientData.Company", "company")
+      .orderBy("ClientData.ID", "DESC")
+      .skip(skip)
+      .take(ITEMS_PER_PAGE)
       .getMany();
-    res.json(clientData);
+      res.json({ currentPage, totalPages, clientData  });
   } catch (error) {
     next(new CustomError((error as Error).message, 400));
   }

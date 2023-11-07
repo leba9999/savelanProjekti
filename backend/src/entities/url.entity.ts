@@ -7,6 +7,7 @@ export class URL {
 
   @Column({
     nullable: true,
+    unique: true
   })
   Adress: string;
 }
