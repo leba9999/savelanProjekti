@@ -48,13 +48,7 @@ const uploadRoute = async (
     const urlRepository = DBConnection.getRepository(URL);
     const visitorData = req.body as TrackerData;
 
-    logger.info(
-      `Client connected: ip:${visitorData.ip} current:${
-        visitorData.url
-      } referrer:${visitorData.referrer} timestamp:${new Date(
-        visitorData.timestamp
-      ).getTime()} user-agent:${visitorData.user_agent}`
-    );
+    logger.info(`Client connected: ${JSON.stringify(visitorData)}`);
     if (
       ipv4Pattern.test(visitorData.ip) &&
       !visitorData.ip.includes("0.0.0.0")
@@ -63,8 +57,13 @@ const uploadRoute = async (
         .get(`/json/${visitorData.ip}`)
         .then(async (response: any) => {
           logger.info(`IP API response:${JSON.stringify(response.data)}`);
-          if(response.data?.status === "fail"){
-            next(new CustomError(`IP API response:${JSON.stringify(response.data)}`, 400));
+          if (response.data?.status === "fail") {
+            next(
+              new CustomError(
+                `IP API response:${JSON.stringify(response.data)}`,
+                400
+              )
+            );
             return;
           }
           let existingCompany =
@@ -96,7 +95,7 @@ const uploadRoute = async (
             existingReferrerURL = new URL();
             existingReferrerURL.Adress = visitorData.referrer;
           }
-          if(existingURL.Adress === existingReferrerURL.Adress){
+          if (existingURL.Adress === existingReferrerURL.Adress) {
             existingReferrerURL = existingURL;
           }
           // Create the ClientData record
@@ -128,7 +127,7 @@ const getDataRoute = async (
   next: NextFunction
 ) => {
   try {
-    const page = parseInt(req.query.page as string, 10) || 1 as number;
+    const page = parseInt(req.query.page as string, 10) || (1 as number);
 
     // Calculate the skip (offset) based on the page number
     const skip = (page - 1) * ITEMS_PER_PAGE;
@@ -151,7 +150,7 @@ const getDataRoute = async (
       .skip(skip)
       .take(ITEMS_PER_PAGE)
       .getMany();
-      res.json({ currentPage, totalPages, clientData  });
+    res.json({ currentPage, totalPages, clientData });
   } catch (error) {
     next(new CustomError((error as Error).message, 400));
   }
