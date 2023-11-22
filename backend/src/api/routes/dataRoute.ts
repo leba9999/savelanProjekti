@@ -43,6 +43,7 @@ const uploadRoute = async (
   next: NextFunction
 ) => {
   try {
+    res.json("Data uploaded");
     if (!req.body) {
       next(new CustomError("body not valid", 400));
       return;
@@ -113,7 +114,6 @@ const uploadRoute = async (
 
           const savedData = await clientRepository.save(clientData);
           logger.info(`saved data:${JSON.stringify(savedData)}`);
-          res.json(savedData);
         })
         .catch((error: any) => {
           next(new CustomError((error as Error)?.message, 400));
