@@ -1,16 +1,16 @@
 {
-  "bots": [
-    "Googlebot",
-    "bingbot",
-    "Yahoo! Slurp",
-    "YandexBot",
-    "Baiduspider",
-    "DuckDuckbot",
-    "ReverseEngineeringBot",
-    "SeekportBot",
-    "DecompilationBot",
-    "AhrefsBot",
-    "DongleEmulatorBot",
-    "PostmanRuntime"
-  ]
-}
+    "bots": [
+      "Googlebot",
+      "bingbot",
+      "Yahoo! Slurp",
+      "YandexBot",
+      "Baiduspider",
+      "DuckDuckbot",
+      "ReverseEngineeringBot",
+      "SeekportBot",
+      "DecompilationBot",
+      "AhrefsBot",
+      "DongleEmulatorBot",
+      "PostmanRuntime"
+    ]
+  }

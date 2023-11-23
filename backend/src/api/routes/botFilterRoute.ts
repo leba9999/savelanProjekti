@@ -31,7 +31,7 @@ async function fetchBots() {
     }
   }
 
-  const configFilePath = path.join(__dirname, '../../../settings.json');
+  const configFilePath = '../../../settings.json';
 
 const botFilterPostRoute = async (
   req: Request,
