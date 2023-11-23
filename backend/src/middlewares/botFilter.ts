@@ -84,4 +84,4 @@ const botFilter = async (req: Request, res: Response<ErrorResponse>, next: NextF
 };
 
 // Export the middleware function for use in other files
-export { botFilter };
+export { botFilter, fetchBots };
