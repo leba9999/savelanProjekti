@@ -1,0 +1,178 @@
+<html>
+    <head>
+        <title>Visit data</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            table, th, td {
+                border: 1px solid black;
+            }
+            .center {
+                margin: auto;
+                width: 50%;
+            }
+            
+            h1{
+                margin: auto;
+                width: 50%;
+            }
+        </style>
+    </head>
+    <body>
+        <h1 class="center">Savelan log data</h1>
+        <br>
+        
+        <div class="center">
+            <label for="search">text search:</label>
+        <input id="search" type="text">
+        <br><br>
+        </div>
+        
+        <table class="center">
+            <thead id="head">
+                
+            </thead>
+            <tbody id="body">
+
+            </tbody>
+        </table>
+        <div class="center">
+            <div id="page_info"></div>
+            <button id="previous">Previous page</button>
+            <button id="next">Next Page</button>
+        </div>
+        <script>
+            let head = document.getElementById('head');
+            let body = document.getElementById('body');
+            let info = document.getElementById('page_info');
+            
+            let next = document.getElementById('next');
+            let previous = document.getElementById('previous');
+            let search = document.getElementById('search');
+            
+            let currentPage;
+            let totalPages;
+            
+            let route = "http://127.0.0.1:3000/api/v1/data";
+            
+            let fakeData = {
+  "currentPage": 1,
+  "totalPages": 4,
+  "clientData": [
+    {
+      "ID": 10,
+      "UserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:60.0) Gecko/20100101 Firefox/60.0",
+      "TimeStamp": "2023-11-02T10:05:05.000Z",
+      "CurrentPage": {
+        "ID": 10,
+        "Adress": "http://localhost:3000/test2"
+      },
+      "SourcePage": {
+        "ID": 10,
+        "Adress": "http://localhost:3000/test1"
+      },
+      "Company": {
+        "ID": 6,
+        "IP": "194.168.98.47",
+        "NAME": "Virgin Media Limited"
+      }
+    },
+    {
+      "ID": 9,
+      "UserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:60.0) Gecko/20100101 Firefox/60.0",
+      "TimeStamp": "2023-11-02T10:05:05.000Z",
+      "CurrentPage": {
+        "ID": 10,
+        "Adress": "http://localhost:3000/test2"
+      },
+      "SourcePage": {
+        "ID": 10,
+        "Adress": "http://localhost:3000/test4"
+      },
+      "Company": {
+        "ID": 5,
+        "IP": "190.168.98.47",
+        "NAME": "Universidad de Los Andes"
+      }
+    }
+  ]
+};
+            search.addEventListener("input", (e)=>{
+                getData(1, null, search.value);
+                
+            });
+            
+            next.addEventListener("click", (e)=>{
+                
+                if(currentPage < totalPages){
+                    getData(currentPage + 1, null, search.value);
+                }
+            });
+            
+            previous.addEventListener("click", (e)=>{
+                console.log("sss");
+                if(currentPage > 1){
+                    getData(currentPage - 1, null, search.value);
+                }
+            });
+            
+            getData(1, null, search.value);
+            
+            function getData(page, date, name){
+                //setTable(JSON.parse(fakeData));
+               
+                //TODO: change to correct url
+                fetch(`${route}?page=${page}`)
+                        .then(resp=> resp.json()).
+                        then(logData =>{
+                            setTable(logData);
+                        }).catch(error => {
+                            alert(`failed to get log data.\n Message: ${error}`);
+                        });
+            }
+            
+            function setTable(logData){
+                
+                info.innerText = `Page ${logData.currentPage}/${logData.totalPages}`;
+                currentPage = logData.currentPage;
+                totalPages = logData.totalPages;
+                
+                head.innerHTML = "";
+                body.innerHTML = "";
+                let row = document.createElement("tr");
+                let name = document.createElement("td");
+                let pageFrom = document.createElement("td");
+                let pageTo = document.createElement("td");
+                let date = document.createElement("td");
+                
+                name.innerText = "Name";
+                pageFrom.innerText = "Page from";
+                pageTo.innerText = "Page to";
+                date.innerText = "Date and time";
+                
+                row.append(name, pageFrom, pageTo, date);
+                head.appendChild(row);
+                
+                for(let i in logData.clientData){
+                    let item = logData.clientData[i];
+                    let row = document.createElement("tr");
+                   
+                    let name = document.createElement("td");
+                    name.innerText = item.Company.NAME;
+                    
+                    let pageFrom = document.createElement("td");
+                    pageFrom.innerText = item.SourcePage.Adress;
+                    
+                    let pageTo = document.createElement("td");
+                    pageTo.innerText = item.CurrentPage.Adress;
+                    
+                    let dateTime = document.createElement("td");
+                    dateTime.innerText = item.TimeStamp;
+                    
+                    row.append(name, pageFrom, pageTo, dateTime);
+                    body.appendChild(row);
+                }
+            }
+        </script>
+
+    </body>
+</html>
