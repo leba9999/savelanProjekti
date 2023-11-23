@@ -8,8 +8,13 @@ import TrackerData from "../../interfaces/TrackerData";
 import axios from "axios";
 import AxiosRateLimit from "axios-rate-limit";
 import logger from "../../util/loggers";
-
-const ITEMS_PER_PAGE = 2;
+import {
+  Between,
+  Brackets,
+  ILike,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+} from "typeorm";
 
 // Create an Axios instance with a base URL
 const api = axios.create({
@@ -38,6 +43,7 @@ const uploadRoute = async (
   next: NextFunction
 ) => {
   try {
+    res.json("Data uploaded");
     if (!req.body) {
       next(new CustomError("body not valid", 400));
       return;
@@ -108,7 +114,6 @@ const uploadRoute = async (
 
           const savedData = await clientRepository.save(clientData);
           logger.info(`saved data:${JSON.stringify(savedData)}`);
-          res.json(savedData);
         })
         .catch((error: any) => {
           next(new CustomError((error as Error)?.message, 400));
@@ -120,6 +125,14 @@ const uploadRoute = async (
     next(new CustomError((error as Error).message, 400));
   }
 };
+// Utility function to make object keys case-insensitive
+const makeKeysCaseInsensitive = (obj: Record<string, any>) => {
+  const result: Record<string, any> = {};
+  for (const key in obj) {
+    result[key.toLowerCase()] = obj[key];
+  }
+  return result;
+};
 
 const getDataRoute = async (
   req: Request,
@@ -127,16 +140,58 @@ const getDataRoute = async (
   next: NextFunction
 ) => {
   try {
-    const page = parseInt(req.query.page as string, 10) || (1 as number);
+    const query = makeKeysCaseInsensitive(req.query);
+    let page = parseInt(query.page as string, 10) || (1 as number);
+    let pageSize = parseInt(query.pagesize as string, 10) || (20 as number);
+    let startDate: Date | undefined;
+    let endDate: Date | undefined;
+    let companyName: string | undefined;
+    let url: string | undefined;
+
+    if (pageSize > 500) {
+      pageSize = 500;
+    } else if (pageSize < 1) {
+      pageSize = 5;
+    }
+
+    if (query.startdate) {
+      startDate = new Date(
+        parseInt(query.startdate as string, 10) || (query.startdate as string)
+      );
+    }
+    if (query.enddate) {
+      endDate = new Date(
+        parseInt(query.enddate as string, 10) || (query.enddate as string)
+      );
+    }
+    if (query.companyname) {
+      companyName = query.companyname as string;
+    }
+    if (query.url) {
+      url = decodeURIComponent(query.url as string);
+    }
 
     // Calculate the skip (offset) based on the page number
-    const skip = (page - 1) * ITEMS_PER_PAGE;
+    const skip = (page - 1) * pageSize;
 
-    // Find users with pagination
+    const whereConditions: any = {};
+    if (startDate && endDate) {
+      whereConditions.TimeStamp = Between(startDate, endDate);
+    } else if (startDate) {
+      whereConditions.TimeStamp = MoreThanOrEqual(startDate);
+    } else if (endDate) {
+      whereConditions.TimeStamp = LessThanOrEqual(endDate);
+    }
+    if (companyName) {
+      whereConditions.Company = whereConditions.Company || {};
+      whereConditions.Company.NAME = ILike(`%${companyName}%`);
+    }
+
+    console.log(whereConditions);
 
     const clientRepository = DBConnection.getRepository(ClientData);
     const totalCount = await clientRepository.count();
-    const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+    const totalPages = Math.ceil(totalCount / pageSize);
     const currentPage = page;
 
     //const clientData = await clientRepository.find();
@@ -146,11 +201,22 @@ const getDataRoute = async (
       .leftJoinAndSelect("ClientData.CurrentPage", "currentPage")
       .leftJoinAndSelect("ClientData.SourcePage", "sourcePage")
       .leftJoinAndSelect("ClientData.Company", "company")
+      .where(whereConditions)
+      .where(
+        new Brackets((qb) => {
+          if (url) {
+            qb.andWhere(
+              "CurrentPage.Adress LIKE :url OR SourcePage.Adress LIKE :url",
+              { url: `%${url}%` }
+            );
+          }
+        })
+      )
       .orderBy("ClientData.ID", "DESC")
       .skip(skip)
-      .take(ITEMS_PER_PAGE)
+      .take(pageSize)
       .getMany();
-    res.json({ currentPage, totalPages, clientData });
+    res.json({ currentPage, totalPages, pageSize, clientData });
   } catch (error) {
     next(new CustomError((error as Error).message, 400));
   }

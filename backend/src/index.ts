@@ -10,8 +10,8 @@ DBConnection.initialize()
     logger.info("Data source has been initialized");
   })
   .catch((error:any) => {
-    logger.error(error.message);
-    logger.debug(error.stack);
+    logger.error(error?.message);
+    logger.debug(error?.stack);
   });
 
 try {
