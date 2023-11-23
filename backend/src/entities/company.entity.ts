@@ -14,4 +14,5 @@ export class Company {
     nullable: false,
   })
   NAME: string;
+  static someStringProperty: number;
 }
