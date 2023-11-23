@@ -8,10 +8,12 @@ import {
   botFilterDeleteRoute,
   botFilterGetRoute,
 } from "./routes/botFilterRoute";
+import { getCompanyRoute } from "./routes/companyRoute";
 
 const router = express.Router();
 
 router.route("/data").post(botFilter, uploadRoute).get(botFilter, getDataRoute);
+router.route("/company").get(getCompanyRoute);
 router
   .route("/botData")
   .post(botFilterPostRoute)
