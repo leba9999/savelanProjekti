@@ -1,0 +1,119 @@
+<html>
+    <head>
+        <title>Bot log</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <h1>Savelan bot log</h1>
+        <div>
+            <table>
+            <thead id="head">
+                
+            </thead>
+            <tbody id="body">
+
+            </tbody>
+        </table>
+        </div>
+        <br><br>
+        <div class="center">
+            <label for="add_text">add new bot:</label>
+        <input id="add_text" type="text">
+        <button id="add_button">Add</button>
+        <br><br>
+        </div>
+        
+        <script>
+            let head = document.getElementById('head');
+            let body = document.getElementById('body');
+            
+            let addText = document.getElementById('add_text');
+            let addButton = document.getElementById('add_button');
+            
+            let route = "http://127.0.0.1:3000/api/v1/botData";
+            
+            
+            addButton.addEventListener('click', (e)=>{
+                console.log(addText.value);
+                addBot(addText.value);
+            });
+            
+            
+            function getBots(){
+                
+                fetch(route)
+                        .then(resp=> resp.json())
+                        .then(bots =>{
+                            console.log(bots);
+                            head.innerHTML = "";
+                            body.innerHTML = "";
+                            
+                            let row = document.createElement("tr");
+                            let name = document.createElement("td");
+                            name.innerText = "Name";
+                            
+                            row.append(name);
+                            head.appendChild(row);
+                            
+                            for(let i in bots.botList){
+                                let item = bots.botList[i]; 
+                                
+                                let name = document.createElement("td");
+                                name.innerText = item;
+                    
+                                let deleteButton = document.createElement("button");
+                                deleteButton.innerText = 'Delete';
+                                deleteButton.addEventListener("click", (e)=>{
+                                    deleteBot(item);
+                                });
+                                let row = document.createElement("tr");
+                                row.append(name, deleteButton);
+                                body.appendChild(row);
+                            }
+                            
+                        }).catch((e)=>{
+                            alert("failed to get bots");
+                            console.log(e);
+                        });
+                
+            }
+            
+            function addBot(name){
+                
+                let options = {method:'POST',
+                    headers:{"Content-Type":"application/json"},
+                    body:JSON.stringify({newBot:name})};
+                
+                fetch(route, options)
+                        .then(resp=>resp.json())
+                        .then(resp => {
+                            // add bot to list / refresh list here
+                            //alert(resp.message);
+                            addText.value = '';
+                            getBots();
+                        }).catch(e=>{
+                            alert("failed to add new bot");
+                            console.log(e);
+                        });
+            }
+            
+            function deleteBot(name){
+                let options = {method:'Delete', 
+                    headers:{"Content-Type":"application/json"}, 
+                    body:JSON.stringify({toBeDeleted:name})};
+                fetch(route, options)
+                        .then(resp=>resp.json())
+                        .then(resp=>{
+                            //alert(resp.message);
+                            getBots();
+                        })
+                        .catch(e=>{
+                            alert("failed to delete bot");
+                            console.log(e);
+                        });
+            }
+            
+            getBots();
+        </script>
+    </body>
+</html>

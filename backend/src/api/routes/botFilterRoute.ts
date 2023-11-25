@@ -2,36 +2,10 @@ import { Request, Response, NextFunction } from "express";
 import CustomError from "../../classes/CustomError";
 import BotConfig from "../../interfaces/BotConfig";
 import fs from 'fs';
-import path from 'path';
 import logger from "../../util/loggers";
+import { fetchBots } from "../../middlewares/botFilter";
 
-async function fetchBots() {
-    try {
-        // Load the configuration file.
-        const configFilePath = '../../../settings.json';
-  
-        // Fetch the current configuration.
-        const response = await fetch(configFilePath);
-  
-        if (!response.ok) {
-            throw new Error('Failed to fetch configuration file');
-        }
-  
-        const configData = await response.json();
-  
-        if (!configData.bots || !Array.isArray(configData.bots)) {
-            return [];
-        }
-  
-        return configData.bots;
-    } catch (error) {
-        logger.error('Error fetching bots');
-        logger.debug('Error fetching bots:', error);
-        return [];
-    }
-  }
-
-  const configFilePath = path.join(__dirname, '../../../settings.json');
+  const configFilePath = './settings.json';
 
 const botFilterPostRoute = async (
   req: Request,
@@ -114,7 +88,7 @@ const botFilterDeleteRoute = async (
       const trackerData = req.body as BotConfig; // Pluginilta tai postmaniltä tuleva data
       console.log(trackerData); 
       
-      const botList = fetchBots(); 
+      const botList = await fetchBots(); 
         
       res.json({
         botList

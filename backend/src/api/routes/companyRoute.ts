@@ -10,11 +10,6 @@ import AxiosRateLimit from "axios-rate-limit";
 import logger from "../../util/loggers";
 import { ILike, Like } from "typeorm";
 
-//haku firman nimellä
-//haku firman id:llä
-//autofill characterlimit esim 3
-//hausta pois ettei välitetä isoista ja pienistä kirjaimista eikä välilyönneistä yms
-
 const ITEMS_PER_PAGE = 2;
 
 const getCompanyRoute = async (

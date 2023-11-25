@@ -9,11 +9,14 @@ import {
   botFilterGetRoute,
 } from "./routes/botFilterRoute";
 import { getCompanyRoute } from "./routes/companyRoute";
+import { getUrlRoute } from "./routes/urlRoute";
+
 
 const router = express.Router();
 
 router.route("/data").post(botFilter, uploadRoute).get(botFilter, getDataRoute);
 router.route("/company").get(getCompanyRoute);
+router.route("/url").get(getUrlRoute);
 router
   .route("/botData")
   .post(botFilterPostRoute)
