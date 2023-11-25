@@ -86,7 +86,7 @@ const uploadRoute = async (
             try {
               let existingCompany =
                 ((await companyRepository.findOne({
-                  where: { Name: response.data.org },
+                  where: { Name: response.data.org || response.data.isp },
                 })) as Company) || new Company();
               existingCompany.IP = visitorData.ip;
               existingCompany.Name = response.data.org || response.data.isp;
