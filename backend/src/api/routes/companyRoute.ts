@@ -23,32 +23,32 @@ const getCompanyRoute = async (
   next: NextFunction
 ) => {
   try {
-  
     const clientRepository = DBConnection.getRepository(Company);
     let clientByName;
-    
 
-    let clientById; 
+    let clientById;
     const name = req.query.name as string;
     const id = parseInt(req.query.id as string, 10);
 
-
-    //Etsii nimen, jos vähintään 3 kirjainta etsii kaikki mitkä kaksi täsmäävät, jos vähemmän etsii vain täsmäävät alkukirjaimet 
-    if(name.length > 2){
+    //Etsii nimen, jos vähintään 3 kirjainta etsii kaikki mitkä kaksi täsmäävät, jos vähemmän etsii vain täsmäävät alkukirjaimet
+    if (name.length > 2) {
       console.log(name);
-      
 
-      clientByName = await clientRepository.find({ where: { NAME: ILike(`%${name}%`) } });
-    } else if (name && name.length <= 2){
+      clientByName = await clientRepository.find({
+        where: { Name: ILike(`%${name}%`) },
+      });
+    } else if (name && name.length <= 2) {
       console.log(name);
-  
-      clientByName = await clientRepository.find({ where: { NAME: ILike(`${name}%`) } });
+
+      clientByName = await clientRepository.find({
+        where: { Name: ILike(`${name}%`) },
+      });
     }
-    if(id){
+    if (id) {
       console.log(id);
       clientById = await clientRepository.findOne({ where: { ID: id } });
     }
- 
+
     res.json({ clientById, clientByName });
   } catch (error) {
     next(new CustomError((error as Error).message, 400));

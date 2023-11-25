@@ -8,6 +8,8 @@ import TrackerData from "../../interfaces/TrackerData";
 import axios from "axios";
 import AxiosRateLimit from "axios-rate-limit";
 import logger from "../../util/loggers";
+import * as url from "url";
+import { wait, normalizeUrl } from "../../util/helpers";
 import {
   Between,
   Brackets,
@@ -20,6 +22,8 @@ import {
 const api = axios.create({
   baseURL: `http://ip-api.com`,
 });
+const maxRetries = 3;
+let attempt = 1;
 // Create a rate-limited instance with a maximum of 40 requests per minute
 // Because the IP API is free, we need to rate-limit our requests to avoid getting blocked
 // 45 requests per minute is the maximum allowed by the IP API
@@ -53,6 +57,11 @@ const uploadRoute = async (
     const companyRepository = DBConnection.getRepository(Company);
     const urlRepository = DBConnection.getRepository(URL);
     const visitorData = req.body as TrackerData;
+    visitorData.url = normalizeUrl(visitorData.url, "https://www.savelan.fi");
+    visitorData.referrer = normalizeUrl(
+      visitorData.referrer,
+      "https://www.savelan.fi"
+    );
 
     logger.info(`Client connected: ${JSON.stringify(visitorData)}`);
     if (
@@ -72,48 +81,67 @@ const uploadRoute = async (
             );
             return;
           }
-          let existingCompany =
-            ((await companyRepository.findOne({
-              where: { NAME: response.data.org },
-            })) as Company) || new Company();
-          existingCompany.IP = visitorData.ip;
-          existingCompany.NAME = response.data.org;
-          if (
-            visitorData.ip.includes("::1") ||
-            visitorData.ip.includes("127.0.0.1")
-          ) {
-            // ::1 is the IPv6 equivalent of 127.0.0.1 which is the localhost IP address
-            existingCompany.NAME = "localhost";
-            existingCompany.IP = "127.0.0.1";
-          }
-          let existingURL = await urlRepository.findOne({
-            where: { Adress: visitorData.url },
-          });
-          let existingReferrerURL = await urlRepository.findOne({
-            where: { Adress: visitorData.referrer },
-          });
 
-          if (!existingURL) {
-            existingURL = new URL();
-            existingURL.Adress = visitorData.url;
-          }
-          if (!existingReferrerURL) {
-            existingReferrerURL = new URL();
-            existingReferrerURL.Adress = visitorData.referrer;
-          }
-          if (existingURL.Adress === existingReferrerURL.Adress) {
-            existingReferrerURL = existingURL;
-          }
-          // Create the ClientData record
-          const clientData = new ClientData();
-          clientData.Company = existingCompany;
-          clientData.CurrentPage = existingURL;
-          clientData.SourcePage = existingReferrerURL;
-          clientData.TimeStamp = new Date(visitorData.timestamp);
-          clientData.UserAgent = visitorData.user_agent;
+          while (attempt <= maxRetries) {
+            try {
+              let existingCompany =
+                ((await companyRepository.findOne({
+                  where: { Name: response.data.org },
+                })) as Company) || new Company();
+              existingCompany.IP = visitorData.ip;
+              existingCompany.Name = response.data.org || response.data.isp;
+              if (
+                visitorData.ip.includes("::1") ||
+                visitorData.ip.includes("127.0.0.1")
+              ) {
+                // ::1 is the IPv6 equivalent of 127.0.0.1 which is the localhost IP address
+                existingCompany.Name = "localhost";
+                existingCompany.IP = "127.0.0.1";
+              }
+              let existingURL = await urlRepository.findOne({
+                where: { Adress: visitorData.url },
+              });
+              let existingReferrerURL = await urlRepository.findOne({
+                where: { Adress: visitorData.referrer },
+              });
 
-          const savedData = await clientRepository.save(clientData);
-          logger.info(`saved data:${JSON.stringify(savedData)}`);
+              if (!existingURL) {
+                existingURL = new URL();
+                existingURL.Adress = visitorData.url;
+              }
+              if (!existingReferrerURL) {
+                existingReferrerURL = new URL();
+                existingReferrerURL.Adress = visitorData.referrer;
+              }
+              if (existingURL.Adress === existingReferrerURL.Adress) {
+                existingReferrerURL = existingURL;
+              }
+              // Create the ClientData record
+              const clientData = new ClientData();
+              clientData.Company = existingCompany;
+              clientData.CurrentPage = existingURL;
+              clientData.SourcePage = existingReferrerURL;
+              clientData.TimeStamp = new Date(visitorData.timestamp);
+              clientData.UserAgent = visitorData.user_agent;
+
+              const savedData = await clientRepository.save(clientData);
+              logger.info(`saved data:${JSON.stringify(savedData)}`);
+              break;
+            } catch (error: any) {
+              if (attempt < maxRetries) {
+                logger.info(
+                  `Attempt ${attempt} failed, to error. Retrying in 1 second`
+                );
+                logger.error(error?.message);
+                logger.debug(error?.stack);
+                await wait(1000);
+                attempt++;
+              } else {
+                next(new CustomError((error as Error)?.message, 400));
+                break;
+              }
+            }
+          }
         })
         .catch((error: any) => {
           next(new CustomError((error as Error)?.message, 400));

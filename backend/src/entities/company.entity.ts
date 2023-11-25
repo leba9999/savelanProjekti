@@ -12,6 +12,7 @@ export class Company {
 
   @Column({
     nullable: false,
+    unique: true,
   })
-  NAME: string;
+  Name: string;
 }
