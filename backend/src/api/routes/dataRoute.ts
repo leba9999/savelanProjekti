@@ -174,7 +174,11 @@ const getDataRoute = async (
     let startDate: Date | undefined;
     let endDate: Date | undefined;
     let companyName: string | undefined;
+    let companyId: number | undefined;
     let url: string | undefined;
+    let Id: number | undefined;
+    let currentURLId: number | undefined;
+    let sourceURLId: number | undefined;
 
     if (pageSize > 500) {
       pageSize = 500;
@@ -198,6 +202,18 @@ const getDataRoute = async (
     if (query.url) {
       url = decodeURIComponent(query.url as string);
     }
+    if (query.companyid) {
+      companyId = parseInt(query.companyid as string, 10)  as number || undefined;
+    }
+    if (query.currenturlid) {
+      currentURLId = parseInt(query.currenturlid as string, 10) as number || undefined;
+    }
+    if (query.sourceurlid) {
+      sourceURLId = parseInt(query.sourceurlid as string, 10) as number || undefined;
+    }
+    if (query.id) {
+      Id = parseInt(query.id as string, 10) as number || undefined;
+    }
 
     // Calculate the skip (offset) based on the page number
     const skip = (page - 1) * pageSize;
@@ -213,6 +229,21 @@ const getDataRoute = async (
     if (companyName) {
       whereConditions.Company = whereConditions.Company || {};
       whereConditions.Company.NAME = ILike(`%${companyName}%`);
+    }
+    if (companyId) {
+      whereConditions.Company = whereConditions.Company || {};
+      whereConditions.Company.ID = companyId;
+    }
+    if (currentURLId) {
+      whereConditions.CurrentPage = whereConditions.CurrentPage || {};
+      whereConditions.CurrentPage.ID = currentURLId;
+    }
+    if (sourceURLId) {
+      whereConditions.SourcePage = whereConditions.SourcePage || {};
+      whereConditions.SourcePage.ID = sourceURLId;
+    }
+    if (Id) {
+      whereConditions.ID = Id;
     }
 
     console.log(whereConditions);
@@ -230,7 +261,7 @@ const getDataRoute = async (
       .leftJoinAndSelect("ClientData.SourcePage", "sourcePage")
       .leftJoinAndSelect("ClientData.Company", "company")
       .where(whereConditions)
-      .where(
+      .andWhere(
         new Brackets((qb) => {
           if (url) {
             qb.andWhere(
