@@ -16,4 +16,12 @@ function normalizeUrl(dirtyUrl: string, baseDomain: string): string {
   return parsedUrl.toString();
 }
 
-export { wait, normalizeUrl };
+// Utility function to make object keys case-insensitive
+const makeKeysCaseInsensitive = (obj: Record<string, any>) => {
+  const result: Record<string, any> = {};
+  for (const key in obj) {
+    result[key.toLowerCase()] = obj[key];
+  }
+  return result;
+};
+export { wait, normalizeUrl, makeKeysCaseInsensitive };

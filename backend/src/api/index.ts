@@ -8,13 +8,19 @@ import {
   botFilterDeleteRoute,
   botFilterGetRoute,
 } from "./routes/botFilterRoute";
-import { getCompanyRoute } from "./routes/companyRoute";
+import {
+  getAutocompleteCompany,
+  getCompanyData,
+  getCompanies,
+} from "./routes/companyRoute";
 import { getUrlRoute } from "./routes/urlRoute";
 
 const router = express.Router();
 
 router.route("/data").post(botFilter, uploadRoute).get(getDataRoute);
-router.route("/company").get(getCompanyRoute);
+router.route("/company/autocomplete").get(getAutocompleteCompany);
+router.route("/company").get(getCompanyData);
+router.route("/companies").get(getCompanies);
 router.route("/url").get(getUrlRoute);
 router
   .route("/botData")

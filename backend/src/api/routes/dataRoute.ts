@@ -9,7 +9,11 @@ import axios from "axios";
 import AxiosRateLimit from "axios-rate-limit";
 import logger from "../../util/loggers";
 import * as url from "url";
-import { wait, normalizeUrl } from "../../util/helpers";
+import {
+  wait,
+  normalizeUrl,
+  makeKeysCaseInsensitive,
+} from "../../util/helpers";
 import {
   Between,
   Brackets,
@@ -153,14 +157,6 @@ const uploadRoute = async (
     next(new CustomError((error as Error).message, 400));
   }
 };
-// Utility function to make object keys case-insensitive
-const makeKeysCaseInsensitive = (obj: Record<string, any>) => {
-  const result: Record<string, any> = {};
-  for (const key in obj) {
-    result[key.toLowerCase()] = obj[key];
-  }
-  return result;
-};
 
 const getDataRoute = async (
   req: Request,
@@ -203,20 +199,20 @@ const getDataRoute = async (
       url = decodeURIComponent(query.url as string);
     }
     if (query.companyid) {
-      companyId = parseInt(query.companyid as string, 10)  as number || undefined;
+      companyId =
+        (parseInt(query.companyid as string, 10) as number) || undefined;
     }
     if (query.currenturlid) {
-      currentURLId = parseInt(query.currenturlid as string, 10) as number || undefined;
+      currentURLId =
+        (parseInt(query.currenturlid as string, 10) as number) || undefined;
     }
     if (query.sourceurlid) {
-      sourceURLId = parseInt(query.sourceurlid as string, 10) as number || undefined;
+      sourceURLId =
+        (parseInt(query.sourceurlid as string, 10) as number) || undefined;
     }
     if (query.id) {
-      Id = parseInt(query.id as string, 10) as number || undefined;
+      Id = (parseInt(query.id as string, 10) as number) || undefined;
     }
-
-    // Calculate the skip (offset) based on the page number
-    const skip = (page - 1) * pageSize;
 
     const whereConditions: any = {};
     if (startDate && endDate) {
@@ -252,6 +248,8 @@ const getDataRoute = async (
     const totalCount = await clientRepository.count();
     const totalPages = Math.ceil(totalCount / pageSize);
     const currentPage = page;
+    // Calculate the skip (offset) based on the page number
+    const skip = (page - 1) * pageSize;
 
     //const clientData = await clientRepository.find();
     logger.info(`Client fetching data`);
