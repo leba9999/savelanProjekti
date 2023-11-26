@@ -167,14 +167,15 @@ const getDataRoute = async (
     const query = makeKeysCaseInsensitive(req.query);
     let page = parseInt(query.page as string, 10) || (1 as number);
     let pageSize = parseInt(query.pagesize as string, 10) || (20 as number);
-    let startDate: Date | undefined;
-    let endDate: Date | undefined;
+    let fromDate: Date | undefined;
+    let toDate: Date | undefined;
     let companyName: string | undefined;
     let companyId: number | undefined;
     let url: string | undefined;
     let Id: number | undefined;
     let currentURLId: number | undefined;
     let sourceURLId: number | undefined;
+    let datalimit = true;
 
     if (pageSize > 500) {
       pageSize = 500;
@@ -182,16 +183,17 @@ const getDataRoute = async (
       pageSize = 5;
     }
 
-    if (query.startdate) {
-      startDate = new Date(
-        parseInt(query.startdate as string, 10) || (query.startdate as string)
-      );
+    if (query.fromdate) {
+      fromDate = new Date(query.fromdate as string);
     }
-    if (query.enddate) {
-      endDate = new Date(
-        parseInt(query.enddate as string, 10) || (query.enddate as string)
-      );
+    if (query.todate) {
+      toDate = new Date(query.todate as string);
     }
+    console.log(query.fromdate);
+    console.log(query.todate);
+    console.log(fromDate);
+    console.log(toDate);
+
     if (query.companyname) {
       companyName = query.companyname as string;
     }
@@ -214,14 +216,24 @@ const getDataRoute = async (
       Id = (parseInt(query.id as string, 10) as number) || undefined;
     }
 
-    const whereConditions: any = {};
-    if (startDate && endDate) {
-      whereConditions.TimeStamp = Between(startDate, endDate);
-    } else if (startDate) {
-      whereConditions.TimeStamp = MoreThanOrEqual(startDate);
-    } else if (endDate) {
-      whereConditions.TimeStamp = LessThanOrEqual(endDate);
+    if (
+      fromDate &&
+      toDate &&
+      fromDate.getTime() <= toDate.getTime() &&
+      query.page === undefined
+    ) {
+      datalimit = false;
     }
+
+    const whereConditions: any = {};
+    if (fromDate && toDate && fromDate.getTime() <= toDate.getTime()) {
+      whereConditions.TimeStamp = Between(fromDate, toDate);
+    } else if (fromDate && !toDate) {
+      whereConditions.TimeStamp = MoreThanOrEqual(fromDate);
+    } else if (toDate && !fromDate) {
+      whereConditions.TimeStamp = LessThanOrEqual(toDate);
+    }
+
     if (companyName) {
       whereConditions.Company = whereConditions.Company || {};
       whereConditions.Company.NAME = ILike(`%${companyName}%`);
@@ -252,27 +264,50 @@ const getDataRoute = async (
     const skip = (page - 1) * pageSize;
 
     //const clientData = await clientRepository.find();
-    logger.info(`Client fetching data`);
-    const clientData = await clientRepository
-      .createQueryBuilder("ClientData")
-      .leftJoinAndSelect("ClientData.CurrentPage", "currentPage")
-      .leftJoinAndSelect("ClientData.SourcePage", "sourcePage")
-      .leftJoinAndSelect("ClientData.Company", "company")
-      .where(whereConditions)
-      .andWhere(
-        new Brackets((qb) => {
-          if (url) {
-            qb.andWhere(
-              "CurrentPage.Adress LIKE :url OR SourcePage.Adress LIKE :url",
-              { url: `%${url}%` }
-            );
-          }
-        })
-      )
-      .orderBy("ClientData.ID", "DESC")
-      .skip(skip)
-      .take(pageSize)
-      .getMany();
+    let clientData: ClientData[] = [];
+    if (datalimit) {
+      logger.info(`Client fetching data with page system`);
+      clientData = await clientRepository
+        .createQueryBuilder("ClientData")
+        .leftJoinAndSelect("ClientData.CurrentPage", "currentPage")
+        .leftJoinAndSelect("ClientData.SourcePage", "sourcePage")
+        .leftJoinAndSelect("ClientData.Company", "company")
+        .where(whereConditions)
+        .andWhere(
+          new Brackets((qb) => {
+            if (url) {
+              qb.andWhere(
+                "CurrentPage.Adress LIKE :url OR SourcePage.Adress LIKE :url",
+                { url: `%${url}%` }
+              );
+            }
+          })
+        )
+        .orderBy("ClientData.ID", "DESC")
+        .skip(skip)
+        .take(pageSize)
+        .getMany();
+    } else {
+      logger.info(`Client fetching data without page system`);
+      clientData = await clientRepository
+        .createQueryBuilder("ClientData")
+        .leftJoinAndSelect("ClientData.CurrentPage", "currentPage")
+        .leftJoinAndSelect("ClientData.SourcePage", "sourcePage")
+        .leftJoinAndSelect("ClientData.Company", "company")
+        .where(whereConditions)
+        .andWhere(
+          new Brackets((qb) => {
+            if (url) {
+              qb.andWhere(
+                "CurrentPage.Adress LIKE :url OR SourcePage.Adress LIKE :url",
+                { url: `%${url}%` }
+              );
+            }
+          })
+        )
+        .orderBy("ClientData.ID", "DESC")
+        .getMany();
+    }
     res.json({ currentPage, totalPages, pageSize, clientData });
   } catch (error) {
     next(new CustomError((error as Error).message, 400));

@@ -13,7 +13,7 @@ import {
   getCompanyData,
   getCompanies,
 } from "./routes/companyRoute";
-import { getUrlRoute } from "./routes/urlRoute";
+import { getAutocompleteUrl, getURLs, getUrlRoute } from "./routes/urlRoute";
 
 const router = express.Router();
 
@@ -22,6 +22,8 @@ router.route("/company/autocomplete").get(getAutocompleteCompany);
 router.route("/company").get(getCompanyData);
 router.route("/companies").get(getCompanies);
 router.route("/url").get(getUrlRoute);
+router.route("/urls").get(getURLs);
+router.route("/url/autocomplete").get(getAutocompleteUrl);
 router
   .route("/botData")
   .post(botFilterPostRoute)
