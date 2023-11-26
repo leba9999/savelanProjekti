@@ -1,0 +1,28 @@
+#navigation{
+    background-color: #83c52d;
+    color: #ffffff;
+    padding: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.Link{
+    color: #ffffff;
+    text-decoration: none;
+    padding: 10px;
+}
+.items{
+    text-decoration: none;
+    list-style: none;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+.list{
+    text-decoration: none;
+    list-style: none;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
