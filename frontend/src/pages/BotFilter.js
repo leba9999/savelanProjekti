@@ -52,23 +52,23 @@ const BotFilter = () => {
 
     return (
         <div>
-            <h1>BotFilter</h1>
+            <h1>Bot Filter</h1>
             <table>
                 <thead id="head">
-                    <th>Nimi</th>
+                    <th>Name</th>
                 </thead>
                 <tbody id="body">
                     {data ? data.map((item) => {
                         return (
                             <tr key={item}>
                                 <td>{item}</td>
-                                <td><Button size="sm" variant="danger" onClick={()=>handleDelete(item)}>Poista</Button></td>
+                                <td><Button size="sm" variant="danger" onClick={()=>handleDelete(item)}>Delete</Button></td>
                             </tr>
                         )
-                    }) : <tr><td>ei dataa</td></tr>}
+                    }) : <tr><td>No data</td></tr>}
                 </tbody>
             </table>
-            <input type="text" id="newBot" placeholder="Lisää botti" ref={botnameRef}></input> <Button onClick={handleAdd}>Lisää</Button>
+            <input type="text" id="newBot" placeholder="Add bot..." ref={botnameRef}></input> <Button onClick={handleAdd}>Add</Button>
         </div>
     )
 }
