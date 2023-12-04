@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { getURLData, getURL, autocompleteCompanies } from '../utils/DataFetch';
+import { useParams, Link } from 'react-router-dom';
+import { getURLData, getURL } from '../utils/DataFetch';
 import { daysBetweenDates } from '../utils/Helpers';
 import classes from './Site.module.css';
 import Table from 'react-bootstrap/Table';
@@ -39,7 +39,7 @@ ChartJS.register(
       },
       title: {
         display: false,
-        text: 'Viikon kävijä määrät',
+        text: '',
       },
     },
   };
@@ -172,39 +172,26 @@ const Site = () => {
         });
     }
     const countCompaniesEntries = (data) => {
-        const fromDate = new Date(fromdatePicker);
-        const toDate = new Date(todatePicker);
-        toDate.setHours(23, 59, 59, 999);
-        const companyVisitsByDay = {};
         const totalVisitsByCompany = {};
-      
-        for (let i = daysBetweenDates(toDate, fromDate); i >= 0; i--) {
-          const targetDay = new Date(toDate);
-          targetDay.setDate(toDate.getDate() - i);
-      
-          const formattedTargetDay = targetDay.toLocaleDateString();
-          const visitsForDay = {};
-          data.forEach(entry => {
-            const entryDate = new Date(entry.TimeStamp);
-            const entryDay = entryDate.toLocaleDateString();
-            // Check if the entry is on the target day
-            if (entryDay === formattedTargetDay) {
-              const companyName = entry.Company.Name; // Assuming your company data is nested under "Company"
-      
-              // Increment the count for the company on this day
-              visitsForDay[companyName] = (visitsForDay[companyName] || 0) + 1;
-              totalVisitsByCompany[companyName] = (totalVisitsByCompany[companyName] || 0) + 1;
+        const visualDataCount = {};
+        data.forEach((item) => {
+            if (totalVisitsByCompany[item.Company.Name]) {
+                totalVisitsByCompany[item.Company.Name].count++;
+                visualDataCount[item.Company.Name]++;
+            } else {
+                visualDataCount[item.Company.Name] = 1;
+                totalVisitsByCompany[item.Company.Name] = {};
+                totalVisitsByCompany[item.Company.Name].count = 1;
+                totalVisitsByCompany[item.Company.Name].id = item.Company.ID;
             }
-          });
-      
-          companyVisitsByDay[formattedTargetDay] = visitsForDay;
-        }
+        });
+
         // Now you can transform the data for charting (if needed)
         setCompaniesTotalVisits(totalVisitsByCompany);
         const keysArray = Object.keys(totalVisitsByCompany).map(key => key.toString());
         const datasets =[{
             label: `Total number of Visits by Company`,
-            data: totalVisitsByCompany,
+            data: visualDataCount,
             borderColor: 'rgb(255, 99, 132)',
             backgroundColor: 'rgba(255, 99, 132, 0.5)',
           }];
@@ -215,7 +202,7 @@ const Site = () => {
         });
       };
     return (
-        <div>
+    <div>
         <div className={classes.site}>
             <h1>Site: {url[0]?.Adress || id}</h1>
             <div className={classes.content}>
@@ -237,8 +224,8 @@ const Site = () => {
                                 {companiesTotalVisits ? Object.keys(companiesTotalVisits).map(key => {
                                     return (
                                         <tr key={key}>
-                                            <td>{key}</td>
-                                            <td>{companiesTotalVisits[key]}</td>
+                                            <td><Link to={`/company/${companiesTotalVisits[key].id}`}>{key}</Link></td>
+                                            <td>{companiesTotalVisits[key].count}</td>
                                         </tr>
                                     )
                                 }) : <p>Loading...</p>}
@@ -247,7 +234,7 @@ const Site = () => {
                     </div>
                 </div>
                 <div className={classes.card}>
-                    <h2>Data used to calculate visits</h2>
+                    <h2>Data</h2>
                     <div className={classes.controls}>
                         <div className={classes.datepickers}>
                             <Form.Control
@@ -304,7 +291,7 @@ const Site = () => {
                                 return (
                                     <tr key={item.ID}>
                                         <td>{index + 1}</td>
-                                        <td>{item.Company.Name}</td>
+                                        <td> <Link to={`/company/${item.Company.ID}`}>{item.Company.Name}</Link> </td>
                                         <td>{new Date(item.TimeStamp).toLocaleString()}</td>
                                     </tr>
                                 )
@@ -314,7 +301,7 @@ const Site = () => {
                 </div>
             </div>
         </div>
-        </div>
+     </div>
     )
 }
 

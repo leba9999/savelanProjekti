@@ -9,7 +9,6 @@
     "SeekportBot",
     "DecompilationBot",
     "AhrefsBot",
-    "DongleEmulatorBot",
-    "PostmanRuntime"
+    "DongleEmulatorBot"
   ]
 }

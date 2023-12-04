@@ -175,7 +175,7 @@ const getDataRoute = async (
     let Id: number | undefined;
     let currentURLId: number | undefined;
     let sourceURLId: number | undefined;
-    let datalimit = true;
+    let pageSystem = true;
 
     if (pageSize > 500) {
       pageSize = 500;
@@ -189,10 +189,6 @@ const getDataRoute = async (
     if (query.todate) {
       toDate = new Date(query.todate as string);
     }
-    console.log(query.fromdate);
-    console.log(query.todate);
-    console.log(fromDate);
-    console.log(toDate);
 
     if (query.companyname) {
       companyName = query.companyname as string;
@@ -222,7 +218,7 @@ const getDataRoute = async (
       fromDate.getTime() <= toDate.getTime() &&
       query.page === undefined
     ) {
-      datalimit = false;
+      pageSystem = false;
     }
 
     const whereConditions: any = {};
@@ -265,7 +261,7 @@ const getDataRoute = async (
 
     //const clientData = await clientRepository.find();
     let clientData: ClientData[] = [];
-    if (datalimit) {
+    if (pageSystem) {
       logger.info(`Client fetching data with page system`);
       clientData = await clientRepository
         .createQueryBuilder("ClientData")
@@ -287,6 +283,7 @@ const getDataRoute = async (
         .skip(skip)
         .take(pageSize)
         .getMany();
+      res.json({ currentPage, totalPages, pageSize, pageSystem, clientData });
     } else {
       logger.info(`Client fetching data without page system`);
       clientData = await clientRepository
@@ -307,8 +304,8 @@ const getDataRoute = async (
         )
         .orderBy("ClientData.ID", "DESC")
         .getMany();
+      res.json({ pageSystem, clientData });
     }
-    res.json({ currentPage, totalPages, pageSize, clientData });
   } catch (error) {
     next(new CustomError((error as Error).message, 400));
   }

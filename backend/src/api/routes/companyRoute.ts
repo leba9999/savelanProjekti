@@ -76,8 +76,10 @@ const getCompanyData = async (
   try {
     const companyRepository = DBConnection.getRepository(Company);
     const id = parseInt(req.query.id as string, 10);
-    const companyById = await companyRepository.findOne({ where: { ID: id } });
-    res.json({ companyById });
+    const companyById =
+      (await companyRepository.findOne({ where: { ID: id } })) ||
+      ({} as Company);
+    res.json(companyById);
   } catch (error) {
     next(new CustomError((error as Error).message, 400));
   }

@@ -8,8 +8,16 @@ const fetchDataPage = async (page, size) => {
     })
 }
 // #region Company data
-const getCompanyData = async (id, page, size) => {
-    return await fetch(`http://127.0.0.1:3000/api/v1/data?page=${page}&pagesize=${size}&companyid=${id}`, {
+const getCompany = async (id) => {
+    return await fetch(`http://127.0.0.1:3000/api/v1/company?id=${id}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        }
+    })
+}
+const getCompanyData = async (id, toDate, fromDate) => {
+    return await fetch(`http://127.0.0.1:3000/api/v1/data?companyid=${id}&fromDate=${fromDate}&toDate=${toDate}`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -93,4 +101,4 @@ const autocompleteURLs = async (adress) => {
     })
 }
 
-export {fetchDataPage, getBotList, deleteBot, addBot, getCompanyData, getListOfCompanies, autocompleteCompanies, getListOfURLs, getURL, getURLData, autocompleteURLs}
+export {fetchDataPage, getBotList, deleteBot, addBot, getCompany, getCompanyData, getListOfCompanies, autocompleteCompanies, getListOfURLs, getURL, getURLData, autocompleteURLs}
