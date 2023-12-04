@@ -11,7 +11,11 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { useEffect, useState } from 'react';
-import {fetchDataPage} from '../utils/DataFetch'
+import {fetchDataPage} from '../utils/DataFetch';
+import classes from './Home.module.css';
+import Table from 'react-bootstrap/Table';
+import Site from './Site';
+
 
 ChartJS.register(
   CategoryScale,
@@ -42,6 +46,7 @@ const Home = () => {
     const [pagesize, setPagesize] = useState(5);
     const [dataset, setDataset] = useState(null);
     const [data, setData] = useState(null);
+    const [companiesTotalVisits, setCompaniesTotalVisits] = useState(null);
 
     useEffect(() => {
         fetchDataPage(page, 500).then((response) => {
@@ -58,6 +63,7 @@ const Home = () => {
     const countEntriesForPastWeek = (data) => {
         const today = new Date();
         const entriesCountByDay = {};
+        
         for (let i = 7; i >= 0; i--) {
           const targetDay = new Date(today);
           targetDay.setDate(today.getDate() - i);
@@ -72,6 +78,8 @@ const Home = () => {
       
           entriesCountByDay[formattedTargetDay] = entriesForDay.length;
         }
+
+
         console.log(entriesCountByDay);
         const keysArray = Object.keys(entriesCountByDay).map(key => key.toString());
         console.log(keysArray);
@@ -86,16 +94,41 @@ const Home = () => {
                 }
             ],
         });
-    }
+
+      }
       
 
     return (
-        <div>
-            <h1>Home</h1>
-            { data ?
-                <Line options={options} data={data} /> : null
-            }
+      <div>
+    <div className={classes.home}>
+        <h1>Home</h1>
+        <div className={classes.content}>
+            <div className={classes.graphes}>
+                {data ? (
+                    <Line className={classes.graphbox} options={options} data={data} />
+                ) : null}
+            </div>
+            <div className={classes.tableContainer}>
+                <div className={classes.table}>
+                    <p>The most visited companies 3</p>
+                    <Table striped bordered hover>
+                    <tbody>
+                        { 
+        }
+                                </tbody>
+                    </Table>
+                </div>
+                <div className={classes.table}>
+                    <p>The most recent 3</p>
+                    <Table striped bordered hover>
+                        {/* ... */}
+                    </Table>
+                </div>
+            </div>
         </div>
+    </div>
+</div>
+
     )
 }
 
