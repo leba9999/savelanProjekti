@@ -9,7 +9,7 @@ import React, { useEffect, useState } from 'react'
 
 const VisitorDataTable = () => {
     const [page, setPage] = useState(1);
-    const [pagesize, setPagesize] = useState(5);
+    const [pagesize, setPagesize] = useState(50);
     const [data, setData] = useState(null);
 
     useEffect(() => {
@@ -52,15 +52,15 @@ const VisitorDataTable = () => {
             <Table striped bordered hover>
                 <thead>
                     <tr>
-                        <th>Datan id</th>
-                        <th>Yrityksen id</th>
-                        <th>IP osoite</th>
-                        <th>Yrityksen nimi</th>
-                        <th>Viarailtu sivun id</th>
-                        <th>Viarailtu sivun</th>
-                        <th>Tullut sivulta id</th>
-                        <th>Tullut sivulta</th>
-                        <th>Aikaleima</th>
+                        <th>Data id</th>
+                        <th>Company id</th>
+                        <th>IP adress</th>
+                        <th>Company nimi</th>
+                        <th>Visited site id</th>
+                        <th>Visited site</th>
+                        <th>Referrer site id</th>
+                        <th>Referrer site</th>
+                        <th>TimeStamp</th>
                         <th>User-Agent</th>
                     </tr>
                 </thead>

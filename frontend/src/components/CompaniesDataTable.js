@@ -22,7 +22,7 @@ const CompaniesDataTable = () => {
     const [singleSelections, setSingleSelections] = useState([]);
     
     const [page, setPage] = useState(1);
-    const [pagesize, setPagesize] = useState(5);
+    const [pagesize, setPagesize] = useState(50);
     const [data, setData] = useState(null);
     const [companies, setCompanies] = useState([]);
 
