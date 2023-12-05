@@ -19,7 +19,7 @@ const options = {
 
 const Home = () => {
   const [data, setData] = useState(null);
-  const [viisiSuurinta, setViisiSuurinta] = useState([]);
+  const [topFive, setTopFive] = useState([]);
   const [totalVisitsInWeek, setTotalVisitsInWeek] = useState(0);
 
   useEffect(() => {
@@ -51,10 +51,10 @@ const Home = () => {
               count: countNames[name],
             }));
 
-            const suurimmatNimet = countedNamesArray.sort((a, b) => b.count - a.count);
+            const topFiveNamesSorted = countedNamesArray.sort((a, b) => b.count - a.count);
 
-            const viisiSuurinta = suurimmatNimet.slice(0, 5);
-            setViisiSuurinta(viisiSuurinta);
+            const topFive = topFiveNamesSorted.slice(0, 5);
+            setTopFive(topFive);
           });
         }
       })
@@ -119,7 +119,7 @@ const Home = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {viisiSuurinta.map((item, index) => (
+                  {topFive.map((item, index) => (
                     <tr key={index}>
                       <td>{item.name}</td>
                       <td>{item.count}</td>
