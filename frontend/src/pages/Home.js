@@ -12,7 +12,7 @@ const options = {
     },
     title: {
       display: true,
-      text: 'Viikon kävijä määrät',
+      text: 'Visitors Count for the Week',
     },
   },
 };
@@ -20,6 +20,7 @@ const options = {
 const Home = () => {
   const [data, setData] = useState(null);
   const [viisiSuurinta, setViisiSuurinta] = useState([]);
+  const [totalVisitsInWeek, setTotalVisitsInWeek] = useState(0);
 
   useEffect(() => {
     fetchDataPage(1, 500)
@@ -27,9 +28,9 @@ const Home = () => {
         if (response.ok) {
           response.json().then((json) => {
             countEntriesForPastWeek(json.clientData);
-            const companies = json.clientData.map(item => item.Company);
+            const companies = json.clientData.map((item) => item.Company);
 
-            const lastWeekData = json.clientData.filter(entry => {
+            const lastWeekData = json.clientData.filter((entry) => {
               const entryDate = new Date(entry.TimeStamp);
               const today = new Date();
               const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -65,28 +66,32 @@ const Home = () => {
   const countEntriesForPastWeek = (data) => {
     const today = new Date();
     const entriesCountByDay = {};
+    let totalVisits = 0;
 
     for (let i = 7; i >= 0; i--) {
       const targetDay = new Date(today);
       targetDay.setDate(today.getDate() - i);
 
       const formattedTargetDay = targetDay.toLocaleDateString();
-      const entriesForDay = data.filter(entry => {
+      const entriesForDay = data.filter((entry) => {
         const entryDate = new Date(entry.TimeStamp);
         const entryDay = entryDate.toLocaleDateString();
         return entryDay === formattedTargetDay;
       });
 
-      entriesCountByDay[formattedTargetDay] = entriesForDay.length;
+      const dailyVisits = entriesForDay.length;
+      entriesCountByDay[formattedTargetDay] = dailyVisits;
+      totalVisits += dailyVisits;
     }
 
-    const keysArray = Object.keys(entriesCountByDay);
+    setTotalVisitsInWeek(totalVisits);
+
     setData({
-      labels: keysArray,
+      labels: Object.keys(entriesCountByDay),
       datasets: [
         {
-          label: 'Tallennetut kävijä määrät',
-          data: keysArray.map(key => entriesCountByDay[key]),
+          label: 'Visitors Count',
+          data: Object.values(entriesCountByDay),
           borderColor: 'rgb(255, 99, 132)',
           backgroundColor: 'rgba(255, 99, 132, 0.5)',
         },
@@ -98,6 +103,7 @@ const Home = () => {
     <div>
       <div className={classes.home}>
         <h1>Home</h1>
+        <p>{`Total visitors in the past week: ${totalVisitsInWeek}`}</p>
         <div className={classes.content}>
           <div className={classes.graphes}>
             {data ? <Line className={classes.graphbox} options={options} data={data} /> : null}
