@@ -1,33 +1,10 @@
-import React from 'react';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
+import React, { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
-import { useEffect, useState } from 'react';
-import {fetchDataPage} from '../utils/DataFetch';
-import classes from './Home.module.css';
+import { fetchDataPage } from '../utils/DataFetch';
 import Table from 'react-bootstrap/Table';
-import Site from './Site';
+import classes from './Home.module.css';
 
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
-
-export const options = {
+const options = {
   responsive: true,
   plugins: {
     legend: {
@@ -41,95 +18,116 @@ export const options = {
 };
 
 const Home = () => {
+  const [data, setData] = useState(null);
+  const [viisiSuurinta, setViisiSuurinta] = useState([]);
 
-    const [page, setPage] = useState(1);
-    const [pagesize, setPagesize] = useState(5);
-    const [dataset, setDataset] = useState(null);
-    const [data, setData] = useState(null);
-    const [companiesTotalVisits, setCompaniesTotalVisits] = useState(null);
+  useEffect(() => {
+    fetchDataPage(1, 500)
+      .then((response) => {
+        if (response.ok) {
+          response.json().then((json) => {
+            countEntriesForPastWeek(json.clientData);
+            const companies = json.clientData.map(item => item.Company);
 
-    useEffect(() => {
-        fetchDataPage(page, 500).then((response) => {
-            if (response.ok) {
-                response.json().then((json) => {
-                    countEntriesForPastWeek(json.clientData);
-                });
-            }
-        }).catch((error) => {
-            console.log(error);
-        });
-    }, []);
+            const lastWeekData = json.clientData.filter(entry => {
+              const entryDate = new Date(entry.TimeStamp);
+              const today = new Date();
+              const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+              return entryDate >= weekAgo && entryDate <= today;
+            });
 
-    const countEntriesForPastWeek = (data) => {
-        const today = new Date();
-        const entriesCountByDay = {};
-        
-        for (let i = 7; i >= 0; i--) {
-          const targetDay = new Date(today);
-          targetDay.setDate(today.getDate() - i);
-      
-          const formattedTargetDay = targetDay.toLocaleDateString();
-          const entriesForDay = data.filter(entry => {
-            const entryDate = new Date(entry.TimeStamp);
-            const entryDay = entryDate.toLocaleDateString();
-            entryDate.toLocaleDateString();
-            return entryDay === formattedTargetDay;
+            const countNames = lastWeekData.reduce((acc, obj) => {
+              if (acc[obj.Company.Name]) {
+                acc[obj.Company.Name]++;
+              } else {
+                acc[obj.Company.Name] = 1;
+              }
+              return acc;
+            }, {});
+
+            const countedNamesArray = Object.keys(countNames).map((name) => ({
+              name,
+              count: countNames[name],
+            }));
+
+            const suurimmatNimet = countedNamesArray.sort((a, b) => b.count - a.count);
+
+            const viisiSuurinta = suurimmatNimet.slice(0, 5);
+            setViisiSuurinta(viisiSuurinta);
           });
-      
-          entriesCountByDay[formattedTargetDay] = entriesForDay.length;
         }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
 
+  const countEntriesForPastWeek = (data) => {
+    const today = new Date();
+    const entriesCountByDay = {};
 
-        console.log(entriesCountByDay);
-        const keysArray = Object.keys(entriesCountByDay).map(key => key.toString());
-        console.log(keysArray);
-        setData({
-            keysArray,
-            datasets: [
-                {
-                    label: 'Tallennetut kävijä määrät',
-                    data: entriesCountByDay,
-                    borderColor: 'rgb(255, 99, 132)',
-                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                }
-            ],
-        });
+    for (let i = 7; i >= 0; i--) {
+      const targetDay = new Date(today);
+      targetDay.setDate(today.getDate() - i);
 
-      }
-      
+      const formattedTargetDay = targetDay.toLocaleDateString();
+      const entriesForDay = data.filter(entry => {
+        const entryDate = new Date(entry.TimeStamp);
+        const entryDay = entryDate.toLocaleDateString();
+        return entryDay === formattedTargetDay;
+      });
 
-    return (
-      <div>
-    <div className={classes.home}>
+      entriesCountByDay[formattedTargetDay] = entriesForDay.length;
+    }
+
+    const keysArray = Object.keys(entriesCountByDay);
+    setData({
+      labels: keysArray,
+      datasets: [
+        {
+          label: 'Tallennetut kävijä määrät',
+          data: keysArray.map(key => entriesCountByDay[key]),
+          borderColor: 'rgb(255, 99, 132)',
+          backgroundColor: 'rgba(255, 99, 132, 0.5)',
+        },
+      ],
+    });
+  };
+
+  return (
+    <div>
+      <div className={classes.home}>
         <h1>Home</h1>
         <div className={classes.content}>
-            <div className={classes.graphes}>
-                {data ? (
-                    <Line className={classes.graphbox} options={options} data={data} />
-                ) : null}
+          <div className={classes.graphes}>
+            {data ? <Line className={classes.graphbox} options={options} data={data} /> : null}
+          </div>
+          <div className={classes.tableContainer}>
+            <div className={classes.table}>
+              <p>The most visited companies last week</p>
+              <Table striped bordered hover>
+                <thead>
+                  <tr>
+                    <th>Company</th>
+                    <th>Count</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {viisiSuurinta.map((item, index) => (
+                    <tr key={index}>
+                      <td>{item.name}</td>
+                      <td>{item.count}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
             </div>
-            <div className={classes.tableContainer}>
-                <div className={classes.table}>
-                    <p>The most visited companies 3</p>
-                    <Table striped bordered hover>
-                    <tbody>
-                        { 
-        }
-                                </tbody>
-                    </Table>
-                </div>
-                <div className={classes.table}>
-                    <p>The most recent 3</p>
-                    <Table striped bordered hover>
-                        {/* ... */}
-                    </Table>
-                </div>
-            </div>
+          </div>
         </div>
+      </div>
     </div>
-</div>
+  );
+};
 
-    )
-}
+export default Home;
 
-export default Home
