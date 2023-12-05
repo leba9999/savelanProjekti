@@ -110,7 +110,7 @@ const Home = () => {
           </div>
           <div className={classes.tableContainer}>
             <div className={classes.table}>
-              <p>Top 5 visited companies last week</p>
+              <p><b>Top 5 visited companies last week</b></p>
               <Table striped bordered hover>
                 <thead>
                   <tr>
