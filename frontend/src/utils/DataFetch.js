@@ -92,8 +92,8 @@ const getURLData = async (id, toDate, fromDate) => {
         }
     })
 }
-const autocompleteURLs = async (adress) => {
-    return await fetch(`http://89.47.166.227:3000/api/v1/url/autocomplete?adress=${adress}`, {
+const autocompleteURLs = async (address) => {
+    return await fetch(`http://89.47.166.227:3000/api/v1/url/autocomplete?address=${address}`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",

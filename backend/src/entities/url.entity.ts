@@ -8,6 +8,7 @@ export class URL {
   @Column({
     nullable: true,
     unique: true,
+    length: 2048,
   })
-  Adress: string;
+  Address: string;
 }

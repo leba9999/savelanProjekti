@@ -31,12 +31,14 @@ export class ClientData {
 
   @ManyToOne(() => URL, {
     cascade: true,
+    nullable: true,
   })
   @JoinColumn()
-  SourcePage: URL;
+  SourcePage: URL | null;
 
   @ManyToOne(() => URL, {
     cascade: true,
+    nullable: false,
   })
   @JoinColumn()
   CurrentPage: URL;

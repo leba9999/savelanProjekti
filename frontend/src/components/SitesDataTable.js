@@ -81,7 +81,7 @@ const SitesDataTable = () => {
                 filterBy={filterBy}
                 id="async-example"
                 isLoading={isLoading}
-                labelKey="Adress"
+                labelKey="Address"
                 minLength={1}
                 onSearch={handleSearch}
                 onChange={handleSelection}
@@ -89,7 +89,7 @@ const SitesDataTable = () => {
                 placeholder="Search for a site..."
                 selected={singleSelections}
                 renderMenuItemChildren={(option) => (
-                    <span>{option.Adress}</span>
+                    <span>{option.Address}</span>
                 )}
             />
         </Form.Group>
@@ -116,7 +116,7 @@ const SitesDataTable = () => {
                 return (
                     <tr key={item.ID} onClick={ () => console.log(item.ID)}>
                         <td>
-                            <Link to={`/site/${item.ID}`}>{item.Adress}</Link>
+                            <Link to={`/site/${item.ID}`}>{item.Address}</Link>
                         </td>
                     </tr>
                 )
