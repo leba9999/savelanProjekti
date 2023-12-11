@@ -171,6 +171,7 @@ const Site = () => {
             ],
         });
     }
+    
     const countCompaniesEntries = (data) => {
         const totalVisitsByCompany = {};
         const visualDataCount = {};
@@ -195,12 +196,14 @@ const Site = () => {
             borderColor: 'rgb(255, 99, 132)',
             backgroundColor: 'rgba(255, 99, 132, 0.5)',
           }];
+
       
         setVisualCompanyData({
           keysArray,
           datasets,
         });
       };
+    
     return (
     <div>
         <div className={classes.site}>

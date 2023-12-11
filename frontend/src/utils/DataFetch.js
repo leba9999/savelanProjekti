@@ -7,6 +7,15 @@ const fetchDataPage = async (page, size) => {
         }
     })
 }
+const fetchData = async (toDate, fromDate) => {
+    return await fetch(`http://127.0.0.1:3000/api/v1/data?toDate=${toDate}&fromDate=${fromDate}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        }
+    })
+}
+
 // #region Company data
 const getCompany = async (id) => {
     return await fetch(`http://127.0.0.1:3000/api/v1/company?id=${id}`, {
@@ -101,4 +110,4 @@ const autocompleteURLs = async (adress) => {
     })
 }
 
-export {fetchDataPage, getBotList, deleteBot, addBot, getCompany, getCompanyData, getListOfCompanies, autocompleteCompanies, getListOfURLs, getURL, getURLData, autocompleteURLs}
+export {fetchDataPage, fetchData, getBotList, deleteBot, addBot, getCompany, getCompanyData, getListOfCompanies, autocompleteCompanies, getListOfURLs, getURL, getURLData, autocompleteURLs}
