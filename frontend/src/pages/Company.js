@@ -170,14 +170,14 @@ const Company = () => {
         const sites = {};
         const visualDataCount = {};
         data.forEach((item) => {
-            if (sites[item.CurrentPage.Adress]) {
-                sites[item.CurrentPage.Adress].count++;
-                visualDataCount[item.CurrentPage.Adress]++;
+            if (sites[item.CurrentPage.Address]) {
+                sites[item.CurrentPage.Address].count++;
+                visualDataCount[item.CurrentPage.Address]++;
             } else {
-                visualDataCount[item.CurrentPage.Adress] = 1;
-                sites[item.CurrentPage.Adress] = {};
-                sites[item.CurrentPage.Adress].count = 1;
-                sites[item.CurrentPage.Adress].id = item.CurrentPage.ID;
+                visualDataCount[item.CurrentPage.Address] = 1;
+                sites[item.CurrentPage.Address] = {};
+                sites[item.CurrentPage.Address].count = 1;
+                sites[item.CurrentPage.Address].id = item.CurrentPage.ID;
             }
         });
         setSiteTotalVisits(sites);
@@ -262,14 +262,14 @@ const Company = () => {
                                 id="basic-typeahead-multiple"
                                 name="filter"
                                 multiple
-                                labelKey="Adress"
+                                labelKey="Address"
                                 minLength={1}
                                 onChange={handleSelection}
                                 options={searchOptions}
                                 placeholder="Filter by a site"
                                 selected={multiSelections}
                                 renderMenuItemChildren={(option) => (
-                                    <span>{option.Adress}</span>
+                                    <span>{option.Address}</span>
                                 )}
                             />
                         </Form.Group>
@@ -288,7 +288,7 @@ const Company = () => {
                                     return (
                                         <tr key={item.ID}>
                                             <td>{index + 1}</td>
-                                            <td><Link to={`/site/${item?.CurrentPage?.ID}`}>{item?.CurrentPage?.Adress}</Link> </td>
+                                            <td><Link to={`/site/${item?.CurrentPage?.ID}`}>{item?.CurrentPage?.Address}</Link> </td>
                                             <td>{new Date(item.TimeStamp).toLocaleString()}</td>
                                         </tr>
                                     )

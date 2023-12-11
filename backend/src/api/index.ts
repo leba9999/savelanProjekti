@@ -2,7 +2,6 @@ import express from "express";
 
 import { botFilter } from "../middlewares/botFilter";
 import { getDataRoute, uploadRoute } from "./routes/dataRoute";
-import { sanitizeBody } from "../middlewares/sanitizeBody";
 import {
   botFilterPostRoute,
   botFilterDeleteRoute,

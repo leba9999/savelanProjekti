@@ -12,8 +12,6 @@ import { Not } from "typeorm";
 import { ILike } from "typeorm";
 import { makeKeysCaseInsensitive } from "../../util/helpers";
 
-const ITEMS_PER_PAGE = 2;
-
 const getUrlRoute = async (
   req: Request,
   res: Response<{}, {}>,
@@ -58,7 +56,7 @@ const getURLs = async (
 
     const urls = await urlRepository
       .createQueryBuilder("url")
-      .orderBy("url.Adress", "ASC")
+      .orderBy("url.Address", "ASC")
       .skip(skip)
       .take(pageSize)
       .getMany();
@@ -75,11 +73,11 @@ const getAutocompleteUrl = async (
 ) => {
   try {
     const urlRepository = DBConnection.getRepository(URL);
-    const adress = req.query.adress as string;
+    const address = req.query.address as string;
     let urlSuggestions = [] as URL[];
 
     urlSuggestions = await urlRepository.find({
-      where: { Adress: ILike(`%${adress}%`) },
+      where: { Address: ILike(`%${address}%`) },
       take: 5,
     });
 

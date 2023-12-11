@@ -207,7 +207,7 @@ const Site = () => {
     return (
     <div>
         <div className={classes.site}>
-            <h1>Site: {url[0]?.Adress || id}</h1>
+            <h1>Site: {url[0]?.Address || id}</h1>
             <div className={classes.content}>
                 <div className={classes.graphes}>
                     { numberofVisitorsData ?

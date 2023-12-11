@@ -54,7 +54,7 @@ const VisitorDataTable = () => {
                     <tr>
                         <th>Data id</th>
                         <th>Company id</th>
-                        <th>IP adress</th>
+                        <th>IP address</th>
                         <th>Company nimi</th>
                         <th>Visited site id</th>
                         <th>Visited site</th>
@@ -75,9 +75,9 @@ const VisitorDataTable = () => {
                                     {item.Company.Name}
                                 </Link> </td>
                                 <td>{item.CurrentPage.ID}</td>
-                                <td> <Link to={`/site/${item.CurrentPage.ID}`}> {item.CurrentPage.Adress}</Link></td>
+                                <td> <Link to={`/site/${item.CurrentPage.ID}`}> {item.CurrentPage.Address}</Link></td>
                                 <td>{item.SourcePage.ID}</td>
-                                <td>{item.SourcePage.Adress}</td>
+                                <td>{item.SourcePage.Address}</td>
                                 <td>{new Date(item.TimeStamp).toLocaleString()}</td>
                                 <td>{item.UserAgent}</td>
                             </tr>

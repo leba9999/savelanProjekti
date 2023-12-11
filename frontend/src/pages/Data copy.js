@@ -80,9 +80,9 @@ const Data = () => {
                             {item.Company.Name}
                                 </Link> </td>
                             <td>{item.CurrentPage.ID}</td>
-                            <td>{item.CurrentPage.Adress}</td>
+                            <td>{item.CurrentPage.Address}</td>
                             <td>{item.SourcePage.ID}</td>
-                            <td>{item.SourcePage.Adress}</td>
+                            <td>{item.SourcePage.Address}</td>
                             <td>{new Date(item.TimeStamp).toLocaleString()}</td>
                             <td>{item.UserAgent}</td>
                         </tr>

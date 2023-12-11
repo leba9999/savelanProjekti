@@ -44,28 +44,45 @@ if (process.env.DISABLE_RATE_LIMIT === "false") {
 
 const ipv4Pattern =
   /(\b25[0-5]|\b2[0-4][0-9]|\b[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}/;
-const ipv6Pattern = /^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$/;
+
+/**
+ * Handles post requests to /data route. The data is expected to be in the body of the request in JSON format.
+ * The data is validated and inserted into the database. If the data is not valid, an error is thrown.
+ * If the data is valid, but the insertion fails, the data is retried 3 times with a 1 second delay between each attempt.
+ * If the data is still not inserted, an error is thrown.
+ * @param req Request object from express
+ * @param res Response object from express
+ * @param next NextFunction object from express
+ * @returns void
+ */
 const uploadRoute = async (
   req: Request,
   res: Response<{}, {}>,
   next: NextFunction
 ) => {
   try {
+    // Imidiately return a response to the client to avoid timeouts on the client side (the client waits for a response)
     res.json("Data uploaded");
+    // Check that the body exists
     if (!req.body) {
       next(new CustomError("body not valid", 400));
       return;
     }
-
     const clientRepository = DBConnection.getRepository(ClientData);
     const companyRepository = DBConnection.getRepository(Company);
     const urlRepository = DBConnection.getRepository(URL);
     const visitorData = req.body as TrackerData;
     visitorData.url = normalizeUrl(visitorData.url, "https://www.savelan.fi");
-    visitorData.referrer = normalizeUrl(
-      visitorData.referrer,
-      "https://www.savelan.fi"
-    );
+    if (
+      visitorData.referrer &&
+      visitorData?.referrer?.toLocaleLowerCase() !== "null" &&
+      visitorData?.referrer?.toLocaleLowerCase() !== "undefined"
+    ) {
+      visitorData.referrer = normalizeUrl(
+        visitorData.referrer,
+        "https://www.savelan.fi"
+      );
+    }
 
     logger.info(`Client connected: ${JSON.stringify(visitorData)}`);
     if (
@@ -103,21 +120,26 @@ const uploadRoute = async (
                 existingCompany.IP = "127.0.0.1";
               }
               let existingURL = await urlRepository.findOne({
-                where: { Adress: visitorData.url },
+                where: { Address: visitorData.url },
               });
-              let existingReferrerURL = await urlRepository.findOne({
-                where: { Adress: visitorData.referrer },
-              });
-
+              let existingReferrerURL = null as URL | null;
+              if (visitorData.referrer) {
+                existingReferrerURL = await urlRepository.findOne({
+                  where: { Address: visitorData.referrer },
+                });
+              }
               if (!existingURL) {
                 existingURL = new URL();
-                existingURL.Adress = visitorData.url;
+                existingURL.Address = visitorData.url;
               }
-              if (!existingReferrerURL) {
+              if (!existingReferrerURL && visitorData.referrer) {
                 existingReferrerURL = new URL();
-                existingReferrerURL.Adress = visitorData.referrer;
+                existingReferrerURL.Address = visitorData.referrer;
               }
-              if (existingURL.Adress === existingReferrerURL.Adress) {
+              if (
+                existingReferrerURL &&
+                existingURL.Address === existingReferrerURL.Address
+              ) {
                 existingReferrerURL = existingURL;
               }
               // Create the ClientData record
@@ -273,7 +295,7 @@ const getDataRoute = async (
           new Brackets((qb) => {
             if (url) {
               qb.andWhere(
-                "CurrentPage.Adress LIKE :url OR SourcePage.Adress LIKE :url",
+                "CurrentPage.Address LIKE :url OR SourcePage.Address LIKE :url",
                 { url: `%${url}%` }
               );
             }
@@ -296,7 +318,7 @@ const getDataRoute = async (
           new Brackets((qb) => {
             if (url) {
               qb.andWhere(
-                "CurrentPage.Adress LIKE :url OR SourcePage.Adress LIKE :url",
+                "CurrentPage.Address LIKE :url OR SourcePage.Address LIKE :url",
                 { url: `%${url}%` }
               );
             }

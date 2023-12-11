@@ -2,23 +2,55 @@ import { NextFunction, Request, Response } from "express";
 import ErrorResponse from "../interfaces/ErrorResponse";
 import * as fs from 'fs/promises'; // Import the 'fs/promises' module
 
-// Function to fetch the existing bots from the configuration file
-async function fetchBots() {
-    try {
-        const configFilePath = './settings.json';
-        const data = await fs.readFile(configFilePath, 'utf8');
-        const configData = JSON.parse(data);
+const withLock = async <T>(callback: () => Promise<T>): Promise<T> => {
+    const configFilePath = './settings.json';
+    const lockFilePath = `${configFilePath}.lock`;
 
-        // Check if the 'bots' property exists and is an array.
-        if (!configData.bots || !Array.isArray(configData.bots)) {
-            return [];
-        }
-        return configData.bots;
+    const releaseLock = async () => {
+        await fs.unlink(lockFilePath).catch(() => {}); // Ignore errors if the lock file doesn't exist
+    };
+
+    try {
+        // Create lock file
+        await fs.writeFile(lockFilePath, '');
+
+        // Execute the callback
+        const result = await callback();
+
+        // Release the lock
+        await releaseLock();
+
+        return result;
+    } catch (error) {
+        // Release the lock in case of an error
+        await releaseLock();
+        throw error;
+    }
+};
+
+// Function to fetch the existing bots from the configuration file
+async function fetchBots(): Promise<string[]> {
+    const configFilePath = './settings.json';
+    const lockFilePath = `${configFilePath}.lock`;
+
+    try {
+        return await withLock(async () => {
+            const content = await fs.readFile(configFilePath, 'utf-8');
+            const configData = JSON.parse(content);
+
+            // Check if the 'bots' property exists and is an array.
+            if (!configData.bots || !Array.isArray(configData.bots)) {
+                return [];
+            }
+
+            return configData.bots;
+        });
     } catch (error) {
         console.error('Error fetching bots:', error);
         return [];
     }
 }
+
 
 // Function to check the syntax of the user agent and extract the bot name
 async function checkUseragentSyntax(userAgent: string): Promise<string | null> {
@@ -41,15 +73,14 @@ async function checkUseragentSyntax(userAgent: string): Promise<string | null> {
     return extractedBotName;
 }
 
-// Middleware function to filter and process bots in the user agent
 const botFilter = async (req: Request, res: Response<ErrorResponse>, next: NextFunction) => {
     const visitorData = req.body;
     const userAgent = visitorData.user_agent;
-    const configFilePath = './settings.json';
 
     try {
         // Fetch the existing bots from the configuration file
         const existingBots = await fetchBots();
+
         // Check the syntax of the user agent and extract the bot name
         const extractedBotName = await checkUseragentSyntax(userAgent);
 
@@ -57,23 +88,26 @@ const botFilter = async (req: Request, res: Response<ErrorResponse>, next: NextF
         let newBotDetected = false;
 
         // Check if the user agent contains any of the existing bots
-        existingBots.forEach(function (bot: string) {
+        existingBots.forEach((bot: string) => {
             if (userAgent.includes(bot)) {
                 botDetected = true;
             }
         });
 
-        // If a bot is detected, send a response with a 403 status and appropriate message
         if (botDetected) {
-            res.status(403).json({ message: "Bot detected" });
-        } else if (extractedBotName) {
-            // If a new bot is detected, add it to the existing bots and update the configuration file
-            existingBots.push(extractedBotName);
-            await fs.writeFile(configFilePath, JSON.stringify({ bots: existingBots }, null, 2));
+            // If a bot is detected, send a response with a 403 status and appropriate message
+            res.status(403).json({ message: 'Bot detected' });
+        } else if (extractedBotName && !existingBots.includes(extractedBotName)) {
+            // If a new bot is detected and not already in the list, add it to the existing bots and update the configuration file
+            await withLock(async () => {
+                existingBots.push(extractedBotName);
+                await fs.writeFile('./settings.json', JSON.stringify({ bots: existingBots }, null, 2));
+            });
+
             newBotDetected = true;
-            res.status(403).json({ message: "New bot detected and added" });
+            res.status(403).json({ message: 'New bot detected and added' });
         } else {
-            // If no bot is detected, proceed to the next middleware
+            // If no bot is detected or it's already in the list, proceed to the next middleware
             next();
         }
     } catch (error) {

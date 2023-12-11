@@ -9,6 +9,10 @@
     "SeekportBot",
     "DecompilationBot",
     "AhrefsBot",
-    "DongleEmulatorBot"
+    "DongleEmulatorBot",
+    "elsabot",
+    "elsacrawler",
+    "duckduckbot",
+    "duckduckcrawler"
   ]
 }
