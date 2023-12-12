@@ -90,7 +90,7 @@ const Home = () => {
               return entryDate >= fromDate && entryDate <= toDate;
             });
   
-            countEntriesForPastMonth(filteredData);
+            countEntriesForPastMonth(filteredData, fromDate, toDate);
   
             const countNames = filteredData.reduce((acc, obj) => {
               if (acc[obj.Company.Name]) {
@@ -120,29 +120,29 @@ const Home = () => {
   
 
  
-  const countEntriesForPastMonth = (data) => {
-    const today = new Date();
+  const countEntriesForPastMonth = (data, fromDate, toDate) => {
+    const diffInDays = Math.floor((toDate - fromDate) / (1000 * 60 * 60 * 24)) + 1; // Päivien lukumäärä valitulla aikavälillä
     const entriesCountByDay = {};
     let totalVisits = 0;
-
-    for (let i = 30; i >= 0; i--) { // Muutettu 30 päivän aikaväliksi
-      const targetDay = new Date(today);
-      targetDay.setDate(today.getDate() - i);
-
+  
+    for (let i = 0; i < diffInDays; i++) {
+      const targetDay = new Date(fromDate);
+      targetDay.setDate(fromDate.getDate() + i);
+  
       const formattedTargetDay = targetDay.toLocaleDateString();
       const entriesForDay = data.filter((entry) => {
         const entryDate = new Date(entry.TimeStamp);
         const entryDay = entryDate.toLocaleDateString();
         return entryDay === formattedTargetDay;
       });
-
+  
       const dailyVisits = entriesForDay.length;
       entriesCountByDay[formattedTargetDay] = dailyVisits;
       totalVisits += dailyVisits;
     }
-
-    setTotalVisitsInMonth(totalVisits); // Päivitetty kuukausitietojen tila
-
+  
+    setTotalVisitsInMonth(totalVisits);
+  
     setData({
       labels: Object.keys(entriesCountByDay),
       datasets: [
@@ -155,12 +155,14 @@ const Home = () => {
       ],
     });
   };
+  
+  //********************************************************** */
 
   return (
     <div>
       <div className={classes.home}>
         <h1>Home</h1>
-        <p>{`Total visitors in the past month: ${totalVisitsInMonth}`}</p> {/* Päivitetty näyttämään kuukauden kävijämäärä */}
+        <p>{`Total visitors: ${totalVisitsInMonth}`}</p> {/* Päivitetty näyttämään kuukauden kävijämäärä */}
         <div className={classes.content}>
           <div className={classes.graphes}>
             {data ? <Line className={classes.graphbox} options={options} data={data} /> : null}
