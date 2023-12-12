@@ -1,0 +1,30 @@
+.botDiv {
+    margin: auto;
+    width: 500px;
+    border: 3px solid #83c52d;
+    padding: 10px;
+    text-align: center;
+}
+
+.botList {
+    margin-left: 30%;
+    margin-bottom: 20px;
+}
+
+#deleteButton {
+    margin-left: 15px;
+}
+
+#newBot {
+    margin-left: 10px;
+}
+
+@media screen and (max-width: 1000px) {
+    .botList{
+        margin-left: 5%;
+    }
+    .botDiv {
+        width: 300px;
+    }
+    
+}

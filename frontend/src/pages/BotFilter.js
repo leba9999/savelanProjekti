@@ -2,6 +2,7 @@ import Button from "react-bootstrap/esm/Button";
 import { addBot, deleteBot, getBotList } from "../utils/DataFetch";
 import React, { useEffect, useState } from 'react'
 import { useRef } from "react";
+import './botFilter.css';
 
 const BotFilter = () => {
     const [data, setData] = useState(null);
@@ -51,9 +52,9 @@ const BotFilter = () => {
     }
 
     return (
-        <div>
+        <div class ="botDiv">
             <h1>Bot Filter</h1>
-            <table>
+            <table class="botList">
                 <thead id="head">
                     <th>Name</th>
                 </thead>
@@ -62,7 +63,7 @@ const BotFilter = () => {
                         return (
                             <tr key={item}>
                                 <td>{item}</td>
-                                <td><Button size="sm" variant="danger" onClick={()=>handleDelete(item)}>Delete</Button></td>
+                                <td><Button id="deleteButton" size="sm" variant="danger" onClick={()=>handleDelete(item)}>Delete</Button></td>
                             </tr>
                         )
                     }) : <tr><td>No data</td></tr>}
