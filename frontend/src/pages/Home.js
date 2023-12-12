@@ -27,48 +27,7 @@ const Home = () => {
   date.setDate(date.getDate() - 30);
   const [fromdatePicker, setFromDatePicker] = useState(date.toISOString().split('T')[0]);
 
-  useEffect(() => {
 
-    fetchDataPage(1, 500)
-      .then((response) => {
-        if (response.ok) {
-          response.json().then((json) => {
-            countEntriesForInterval(json.clientData); 
-            json.clientData.map((item) => item.Company);
-
-            const lastMonthData = json.clientData.filter((entry) => {
-              const entryDate = new Date(entry.TimeStamp);
-              const today = new Date();
-              const monthAgo = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
-
-            return entryDate >= monthAgo && entryDate <= today;
-            });
-
-            const countNames = lastMonthData.reduce((acc, obj) => {
-              if (acc[obj.Company.Name]) {
-                acc[obj.Company.Name]++;
-              } else {
-                acc[obj.Company.Name] = 1;
-              }
-              return acc;
-            }, {});
-
-            const countedNamesArray = Object.keys(countNames).map((name) => ({
-              name,
-              count: countNames[name],
-            }));
-
-            const topFiveNamesSorted = countedNamesArray.sort((a, b) => b.count - a.count);
-
-            const topFive = topFiveNamesSorted.slice(0, 5);
-            setTopFive(topFive);
-          });
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, []);
 
   useEffect(() => {
     const fromDate = new Date(fromdatePicker);
