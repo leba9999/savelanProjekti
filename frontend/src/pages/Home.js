@@ -161,61 +161,56 @@ const Home = () => {
   return (
     <div>
       <div className={classes.home}>
-        <h1>Home</h1>
-        <p>{`Total visitors: ${totalVisitsInMonth}`}</p> {/* Päivitetty näyttämään kuukauden kävijämäärä */}
-        <div className={classes.content}>
-          <div className={classes.graphes}>
-            {data ? <Line className={classes.graphbox} options={options} data={data} /> : null}
-          </div>
-          <div className={classes.card}>
-                        <h2>Data</h2>
-                        <div className={classes.controls}>
-                            <div className={classes.datepickers}>
-                                <Form.Control
-                                    type="date"
-                                    name="fromdatepic"
-                                    placeholder="DateRange"
-                                    max={todatePicker}
-                                    value={fromdatePicker}
-                                    onChange={(e) => setFromDatePicker(e.target.value)}
-                                />
-                                - 
-                                <Form.Control
-                                    type="date"
-                                    name="todatepic"
-                                    placeholder="DateRange"
-                                    value={todatePicker}
-                                    onChange={(e) => setToDatePicker(e.target.value)}
-                                />
-                            </div>
-                           
-                        </div>
-                       
-
-          <div className={classes.tableContainer}>
-            <div className={classes.table}>
-              <p><b>Top 5 visited companies last week</b></p>
-              <Table striped bordered hover>
-                <thead>
-                  <tr>
-                    <th>Company</th>
-                    <th>Count</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {topFive.map((item, index) => (
-                    <tr key={index}>
-                      <td>{item.name}</td>
-                      <td>{item.count}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </div>
-          </div>
+  <h1>Home</h1>
+  <p>{`Total visitors: ${totalVisitsInMonth}`}</p>
+  <div className={classes.datepickers}>
+    <Form.Control
+      type="date"
+      name="fromdatepic"
+      placeholder="DateRange"
+      max={todatePicker}
+      value={fromdatePicker}
+      onChange={(e) => setFromDatePicker(e.target.value)}
+    />
+    -
+    <Form.Control
+      type="date"
+      name="todatepic"
+      placeholder="DateRange"
+      value={todatePicker}
+      onChange={(e) => setToDatePicker(e.target.value)}
+    />
+  </div>
+  <div className={classes.content}>
+    <div className={classes.graphes}>
+      {data ? <Line className={classes.graphbox} options={options} data={data} /> : null}
+    </div>
+    <div className={classes.card}>
+      <div className={classes.tableContainer}>
+        <div className={classes.table}>
+          <p><b>Top 5 visited companies last week</b></p>
+          <Table striped bordered hover>
+            <thead>
+              <tr>
+                <th>Company</th>
+                <th>Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              {topFive.map((item, index) => (
+                <tr key={index}>
+                  <td>{item.name}</td>
+                  <td>{item.count}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
         </div>
       </div>
     </div>
+  </div>
+</div>
+
     </div>
 
   );
