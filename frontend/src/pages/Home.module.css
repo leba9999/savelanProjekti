@@ -70,5 +70,22 @@
     align-items: center;
     margin: 10px;
 }
-  
+@media screen and (max-width: 768px) {
+  .content {
+    flex-direction: column;
+  }
+  .graphes {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  .graphbox {
+    height: 50vh;
+    margin: 5px;
+  }
+  .table {
+    width: 100%;
+  }
+}
+
+
   

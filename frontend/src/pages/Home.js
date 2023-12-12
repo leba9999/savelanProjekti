@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
-import { fetchDataPage, fetchData } from '../utils/DataFetch';
+import { fetchData } from '../utils/DataFetch';
 import Table from 'react-bootstrap/Table';
 import classes from './Home.module.css';
 import Form from 'react-bootstrap/Form';
+import { Link } from 'react-router-dom';
 
 const options = {
   responsive: true,
@@ -50,12 +51,23 @@ const Home = () => {
                 acc[obj.Company.Name]++;
               } else {
                 acc[obj.Company.Name] = 1;
+                
               }
               return acc;
             }, {});
 
+            const companyID = filteredData.reduce((ids, obj) => {
+             
+                ids[obj.Company.Name] = obj.Company.ID;
+                
+              
+              return ids;
+            }, {});
+
+
             const countedNamesArray = Object.keys(countNames).map((name) => ({
               name,
+              ID: companyID[name],
               count: countNames[name],
             }));
 
@@ -150,7 +162,7 @@ const Home = () => {
                   <tbody>
                     {topFive.map((item, index) => (
                       <tr key={index}>
-                        <td>{item.name}</td>
+                        <td><Link to={`/company/${item.ID}`}>{item.name}</Link></td>
                         <td>{item.count}</td>
                       </tr>
                     ))}
