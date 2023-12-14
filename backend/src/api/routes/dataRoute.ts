@@ -180,6 +180,14 @@ const uploadRoute = async (
   }
 };
 
+/**
+ * Fetches data from the database based on the query parameters.
+ * The query parameters are validated and the data is fetched from the database.
+ * If the query parameters are not valid, an error is thrown.
+ * @param req
+ * @param res
+ * @param next
+ */
 const getDataRoute = async (
   req: Request,
   res: Response<{}, {}>,
