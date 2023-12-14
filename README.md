@@ -83,7 +83,7 @@ Powershell example with path:
 PS C:\Projects\WP-plugari\backend> npm install
 ```
 
-Aftrer dependencies installation check `.env` file inside `.../WP-plugin/backend/` folder has your own correct SQL database settings.
+Aftrer dependencies installation check `.env` file inside `.../WP-plugin/backend/` folder has your own correct SQL database settings. Remember only database name is needed and the ORM creates tables automatically, do not create Database with tables!
 
 Then run command `npm run dev` inside `.../WP-plugin/backend/` folder and the backend should start in port 3000. This port also can be changed inside `.env` if needed.
 
