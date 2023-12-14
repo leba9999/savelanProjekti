@@ -126,3 +126,15 @@ Would you like to run the app on another port instead? » (Y/n)
 ```
 
 Say Y, then our frontend starts in Port 3001.
+
+## Production maintaining
+
+Here is some information to take account when updating production code after pulling code to linux server.
+
+- Backend
+  - when updating project remember build backend
+  - Remember to create/update `.env` inside `.../WP-plugin/backend/dist/` folder after building or if there is changes
+  - Remember to restart backend service after building. Example `pm2 restart savelan`
+- Frontend
+  - File `DataFetch.js` inside `.../WP-plugin/frontend/src/utils` contains all backend call's so update the IP/domains to backend IPs. In development enivorment `http://localhost:3000/...` is ok, but in production change it to production backend IP or domain example `http://10.120.33.65:3000/...`.
+  - Build project after updates and copy `.../WP-plugin/frontend/` content to your website server folder. Example nginx default website is in `/var/www/html/` so copy using example command `sudo scp -r ./frontend/build/* /var/www/html/`
