@@ -76,8 +76,8 @@ const VisitorDataTable = () => {
                                 </Link> </td>
                                 <td>{item.CurrentPage.ID}</td>
                                 <td> <Link to={`/site/${item.CurrentPage.ID}`}> {item.CurrentPage.Address}</Link></td>
-                                <td>{item.SourcePage.ID}</td>
-                                <td>{item.SourcePage.Address}</td>
+                                <td>{item?.SourcePage?.ID ? item.SourcePage.ID : "Empty"}</td>
+                                <td>{item?.SourcePage?.Address ? item.SourcePage.Address : "Empty"}</td>
                                 <td>{new Date(item.TimeStamp).toLocaleString()}</td>
                                 <td>{item.UserAgent}</td>
                             </tr>
