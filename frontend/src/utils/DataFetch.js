@@ -8,7 +8,7 @@ const fetchDataPage = async (page, size) => {
     })
 }
 const fetchData = async (toDate, fromDate) => {
-    return await fetch(`http://localhost:3000/api/v1/data?toDate=${toDate}&fromDate=${fromDate}`, {
+    return await fetch(`http://89.47.166.227:3000/api/v1/data?toDate=${toDate}&fromDate=${fromDate}`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
